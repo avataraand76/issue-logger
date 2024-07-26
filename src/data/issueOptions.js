@@ -1,0 +1,31 @@
+// src/data/issueOptions.js
+const issueOptions = [
+  "Máy nỗi chỉ",
+  "Máy may gãy kim",
+  "Máy không cắt chỉ",
+  "Máy may không đạt tiêu chuẩn chất lượng (nhăn, vặn xếp ly, lùa....)",
+  "Máy hư bàn lừa/chân vịt/các bộ phận khác của máy....",
+  "Máy bị sự cố không hoạt động",
+  "Máy hư dây ổ cắm",
+  "Lỗi phần mềm",
+  "Máy hư dao",
+  "Máy hư linh kiện",
+  "Máy chưa được chuẩn bị",
+  "Máy còn sử dụng may mã hàng cũ",
+  "Rập bị hư",
+  "Cử gắn sai",
+  "Máy bỏ mũi",
+  "Máy lỏng chỉ",
+  "Bàn ủi thiếu hơi",
+  "Bàn ủi ra nước",
+  "Máy hư bàn đạp",
+  "Thay đổi cự lý máy",
+  "Máy may bể vải",
+  "Máy rối chỉ",
+  "May không ôm bờ",
+  "Mí không đều",
+  "Máy không có điện",
+  "Khác",
+];
+
+export default issueOptions;

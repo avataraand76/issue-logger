@@ -1,5 +1,5 @@
 // src/pages/MachineryRemediationPage.js
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -14,30 +14,20 @@ import {
   IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { useFormContext } from "../context/FormContext";
+import machineryRemediationOptions from "../data/machineryRemediationOptions";
 
 const MachineryRemediationPage = () => {
-  const [remediation, setRemediation] = useState("");
-  const [otherRemediation, setOtherRemediation] = useState("");
+  const { formData, updateFormData } = useFormContext();
   const navigate = useNavigate();
-
-  const remediationOptions = [
-    "Cơ điện sửa máy tại chỗ",
-    "Đổi máy dự phòng",
-    "Kỹ thuật điều chỉnh",
-    "Nhờ máy chuyền khác tạm thời",
-    "Sắp xếp người hỗ trợ",
-    "Thông tin cho quản lý",
-    "Khác",
-  ];
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const finalRemediation =
-      remediation === "Khác" ? otherRemediation : remediation;
-    console.log({ remediation: finalRemediation });
-    // Handle form submission here (e.g., send data to server)
-    // Then navigate to the next page or back to the home page
-    // navigate("/");
+    if (
+      !formData.remediation ||
+      (formData.remediation === "Khác" && !formData.otherRemediation)
+    )
+      return;
     navigate("/responsibleperson");
   };
 
@@ -51,10 +41,10 @@ const MachineryRemediationPage = () => {
           <RadioGroup
             aria-label="remediation"
             name="remediation"
-            value={remediation}
-            onChange={(e) => setRemediation(e.target.value)}
+            value={formData.remediation}
+            onChange={(e) => updateFormData({ remediation: e.target.value })}
           >
-            {remediationOptions.map((option) => (
+            {machineryRemediationOptions.map((option) => (
               <FormControlLabel
                 key={option}
                 value={option}
@@ -64,20 +54,22 @@ const MachineryRemediationPage = () => {
             ))}
           </RadioGroup>
         </FormControl>
-        {remediation === "Khác" && (
+        {formData.remediation === "Khác" && (
           <TextField
             label="Nhập hành động khắc phục khác"
-            value={otherRemediation}
-            onChange={(e) => setOtherRemediation(e.target.value)}
+            value={formData.otherRemediation}
+            onChange={(e) =>
+              updateFormData({ otherRemediation: e.target.value })
+            }
             variant="outlined"
             fullWidth
             margin="normal"
             InputProps={{
-              endAdornment: otherRemediation && (
+              endAdornment: formData.otherRemediation && (
                 <InputAdornment position="end">
                   <IconButton
                     aria-label="clear input"
-                    onClick={() => setOtherRemediation("")}
+                    onClick={() => updateFormData({ otherRemediation: "" })}
                     edge="end"
                   >
                     <CloseIcon fontSize="small" />
@@ -93,7 +85,8 @@ const MachineryRemediationPage = () => {
           color="primary"
           fullWidth
           disabled={
-            !remediation || (remediation === "Khác" && !otherRemediation)
+            !formData.remediation ||
+            (formData.remediation === "Khác" && !formData.otherRemediation)
           }
         >
           Next

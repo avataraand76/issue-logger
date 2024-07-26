@@ -1,5 +1,5 @@
 // src/pages/HomePage.js
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -8,10 +8,10 @@ import {
   Autocomplete,
   MenuItem,
 } from "@mui/material";
+import { useFormContext } from "../context/FormContext";
 
 const HomePage = () => {
-  const [lineNumber, setLineNumber] = useState(null);
-  const [scope, setScope] = useState("");
+  const { formData, updateFormData } = useFormContext();
   const navigate = useNavigate();
 
   // Danh sách các số chuyền và nhãn của chúng
@@ -21,29 +21,29 @@ const HomePage = () => {
   }));
 
   const scopes = [
-    { value: "machinery", label: "Máy móc" },
-    { value: "people", label: "Con người" },
-    { value: "materials", label: "Nguyên phụ liệu" },
-    { value: "method", label: "Phương pháp" },
-    { value: "other", label: "Khác" },
+    { value: "Máy móc", label: "Máy móc" },
+    { value: "Con người", label: "Con người" },
+    { value: "Nguyên phụ liệu", label: "Nguyên phụ liệu" },
+    { value: "Phương pháp", label: "Phương pháp" },
+    { value: "Khác", label: "Khác" },
   ];
 
   const handleNext = () => {
-    if (!lineNumber || !scope) return;
-    switch (scope) {
-      case "machinery":
+    if (!formData.lineNumber || !formData.scope) return;
+    switch (formData.scope) {
+      case "Máy móc":
         navigate("/machinery");
         break;
-      case "people":
+      case "Con người":
         navigate("/people");
         break;
-      case "materials":
+      case "Nguyên phụ liệu":
         navigate("/materials");
         break;
-      case "method":
+      case "Phương pháp":
         navigate("/method");
         break;
-      case "other":
+      case "Khác":
         navigate("/other");
         break;
       default:
@@ -57,9 +57,11 @@ const HomePage = () => {
         options={lineNumbers}
         getOptionLabel={(option) => option.label}
         onChange={(event, newValue) => {
-          setLineNumber(newValue);
+          updateFormData({ lineNumber: newValue ? newValue.label : "" });
         }}
-        value={lineNumber}
+        value={
+          lineNumbers.find((ln) => ln.label === formData.lineNumber) || null
+        }
         renderInput={(params) => (
           <TextField
             {...params}
@@ -73,8 +75,8 @@ const HomePage = () => {
       <TextField
         select
         label="Phạm vi vấn đề"
-        value={scope}
-        onChange={(e) => setScope(e.target.value)}
+        value={formData.scope}
+        onChange={(e) => updateFormData({ scope: e.target.value })}
         variant="outlined"
         fullWidth
         margin="normal"
@@ -90,7 +92,7 @@ const HomePage = () => {
         color="primary"
         fullWidth
         onClick={handleNext}
-        disabled={!lineNumber || !scope}
+        disabled={!formData.lineNumber || !formData.scope}
       >
         Next
       </Button>
