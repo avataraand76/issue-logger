@@ -10,6 +10,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import { useFormContext } from "../context/FormContext";
+import Header from "../components/Header";
 
 const ReportIssuePage = () => {
   const { formData, updateFormData } = useFormContext();
@@ -53,63 +54,66 @@ const ReportIssuePage = () => {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Typography variant="h5" gutterBottom>
-        GHI NHẬN VẤN ĐỀ DOWNTIME
-      </Typography>
-      <Autocomplete
-        options={lineNumbers}
-        getOptionLabel={(option) => option.label}
-        onChange={(event, newValue) => {
-          updateFormData({ lineNumber: newValue ? newValue.label : "" });
-        }}
-        value={
-          lineNumbers.find((ln) => ln.label === formData.lineNumber) || null
-        }
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Nhập số chuyền"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-          />
-        )}
-      />
-      <TextField
-        select
-        label="Phạm vi vấn đề"
-        value={formData.scope}
-        onChange={(e) => updateFormData({ scope: e.target.value })}
-        variant="outlined"
-        fullWidth
-        margin="normal"
-      >
-        {scopes.map((scopeOption) => (
-          <MenuItem key={scopeOption.value} value={scopeOption.value}>
-            {scopeOption.label}
-          </MenuItem>
-        ))}
-      </TextField>
-      <Button
-        variant="contained"
-        color="primary"
-        fullWidth
-        onClick={handleNext}
-        disabled={!formData.lineNumber || !formData.scope}
-      >
-        Next
-      </Button>
-      <Button
-        variant="outlined"
-        color="secondary"
-        fullWidth
-        onClick={() => navigate(-1)}
-        style={{ marginTop: "10px" }}
-      >
-        Back
-      </Button>
-    </Container>
+    <>
+      <Header />
+      <Container maxWidth="sm">
+        <Typography variant="h5" gutterBottom>
+          GHI NHẬN VẤN ĐỀ DOWNTIME
+        </Typography>
+        <Autocomplete
+          options={lineNumbers}
+          getOptionLabel={(option) => option.label}
+          onChange={(event, newValue) => {
+            updateFormData({ lineNumber: newValue ? newValue.label : "" });
+          }}
+          value={
+            lineNumbers.find((ln) => ln.label === formData.lineNumber) || null
+          }
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Nhập số chuyền"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+            />
+          )}
+        />
+        <TextField
+          select
+          label="Phạm vi vấn đề"
+          value={formData.scope}
+          onChange={(e) => updateFormData({ scope: e.target.value })}
+          variant="outlined"
+          fullWidth
+          margin="normal"
+        >
+          {scopes.map((scopeOption) => (
+            <MenuItem key={scopeOption.value} value={scopeOption.value}>
+              {scopeOption.label}
+            </MenuItem>
+          ))}
+        </TextField>
+        <Button
+          variant="contained"
+          color="primary"
+          fullWidth
+          onClick={handleNext}
+          disabled={!formData.lineNumber || !formData.scope}
+        >
+          Next
+        </Button>
+        <Button
+          variant="outlined"
+          color="secondary"
+          fullWidth
+          onClick={() => navigate(-1)}
+          style={{ marginTop: "10px" }}
+        >
+          Back
+        </Button>
+      </Container>
+    </>
   );
 };
 
