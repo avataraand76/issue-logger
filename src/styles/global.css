@@ -1,0 +1,34 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0; /* Màu nền xung quanh container chính */
+}
+
+#root {
+  width: 430px;
+  height: 932px;
+  overflow-y: auto;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Media query cho màn hình nhỏ hơn 430px */
+@media (max-width: 430px) {
+  #root {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* Media query cho màn hình cao hơn 932px */
+@media (min-height: 932px) {
+  #root {
+    height: 932px;
+  }
+}

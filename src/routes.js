@@ -11,6 +11,7 @@ import MethodPage from "./pages/MethodPage";
 import OtherPage from "./pages/OtherPage";
 import MachineryRemediationPage from "./pages/MachineryRemediationPage";
 import ResponsiblePersonPage from "./pages/ResponsiblePersonPage";
+import IssueListPage from "./pages/IssueListPage";
 
 const AppRoutes = () => {
   return (
@@ -18,7 +19,7 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/report-issue" element={<ReportIssuePage />} />
-        {/* <Route path="/issue-list" element={<IssueListPage />} /> */}
+        <Route path="/issue-list" element={<IssueListPage />} />
         <Route path="/machinery" element={<MachineryPage />} />
         <Route path="/people" element={<PeoplePage />} />
         <Route path="/materials" element={<MaterialsPage />} />

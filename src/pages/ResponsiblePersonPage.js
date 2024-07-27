@@ -57,7 +57,7 @@ const ResponsiblePersonPage = () => {
 
     try {
       const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbxLCStzUjhCrPEU65FqOivlXHWgTn7jSAQdFzb9XbH4tUBPMY4pB7HMVb7YJz2YwEB5Hg/exec",
+        "https://script.google.com/macros/s/AKfycbyrB4N-uLjwzfA-VKx5W8Lyc9aKCzaOV2zzrTudywl5g-8hNGj2Be8I2y_szMFwrmiziQ/exec",
         {
           method: "POST",
           body: JSON.stringify(data),
@@ -65,11 +65,16 @@ const ResponsiblePersonPage = () => {
       );
 
       if (response.ok) {
-        setIsLoading(false);
-        setOpenDialog(true);
-        setTimeout(() => {
-          handleCloseDialog();
-        }, 2000);
+        const result = await response.json();
+        if (result.status === "success") {
+          setIsLoading(false);
+          setOpenDialog(true);
+          setTimeout(() => {
+            handleCloseDialog();
+          }, 2000);
+        } else {
+          throw new Error(result.message || "Failed to save data");
+        }
       } else {
         throw new Error("Failed to save data");
       }
