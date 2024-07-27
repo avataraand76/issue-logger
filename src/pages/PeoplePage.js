@@ -14,10 +14,6 @@ const PeoplePage = () => {
     console.log({ issue, resolution, responsiblePerson });
   };
 
-  const handleBack = () => {
-    navigate(-1);
-  };
-
   return (
     <Container maxWidth="sm">
       <form onSubmit={handleSubmit}>
@@ -52,7 +48,8 @@ const PeoplePage = () => {
           variant="outlined"
           color="secondary"
           fullWidth
-          onClick={handleBack}
+          onClick={() => navigate(-1)}
+          style={{ marginTop: "10px" }}
         >
           Back
         </Button>
