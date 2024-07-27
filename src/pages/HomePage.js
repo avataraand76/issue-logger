@@ -1,101 +1,57 @@
 // src/pages/HomePage.js
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Container,
-  Button,
-  TextField,
-  Autocomplete,
-  MenuItem,
-} from "@mui/material";
-import { useFormContext } from "../context/FormContext";
+import { Container, Button, Box } from "@mui/material";
+import { styled } from "@mui/system";
+
+const AnimatedButton = styled(Button)(({ theme }) => ({
+  padding: "20px 0",
+  fontSize: "1.2rem",
+  transition: "all 0.3s ease-in-out",
+  "&:hover": {
+    transform: "scale(1.05)",
+    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.25)",
+  },
+}));
 
 const HomePage = () => {
-  const { formData, updateFormData } = useFormContext();
   const navigate = useNavigate();
 
-  // Danh sách các số chuyền và nhãn của chúng
-  const lineNumbers = Array.from({ length: 40 }, (_, i) => ({
-    value: i + 1,
-    label: i + 1 === 14 ? "Line 20.01" : `Line ${i + 1}`,
-  }));
+  const handleReportIssue = () => {
+    navigate("/report-issue");
+  };
 
-  const scopes = [
-    { value: "Máy móc", label: "Máy móc" },
-    { value: "Con người", label: "Con người" },
-    { value: "Nguyên phụ liệu", label: "Nguyên phụ liệu" },
-    { value: "Phương pháp", label: "Phương pháp" },
-    { value: "Khác", label: "Khác" },
-  ];
-
-  const handleNext = () => {
-    if (!formData.lineNumber || !formData.scope) return;
-    switch (formData.scope) {
-      case "Máy móc":
-        navigate("/machinery");
-        break;
-      case "Con người":
-        navigate("/people");
-        break;
-      case "Nguyên phụ liệu":
-        navigate("/materials");
-        break;
-      case "Phương pháp":
-        navigate("/method");
-        break;
-      case "Khác":
-        navigate("/other");
-        break;
-      default:
-        break;
-    }
+  const handleIssueList = () => {
+    navigate("/issue-list");
   };
 
   return (
     <Container maxWidth="sm">
-      <Autocomplete
-        options={lineNumbers}
-        getOptionLabel={(option) => option.label}
-        onChange={(event, newValue) => {
-          updateFormData({ lineNumber: newValue ? newValue.label : "" });
-        }}
-        value={
-          lineNumbers.find((ln) => ln.label === formData.lineNumber) || null
-        }
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Nhập số chuyền"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-          />
-        )}
-      />
-      <TextField
-        select
-        label="Phạm vi vấn đề"
-        value={formData.scope}
-        onChange={(e) => updateFormData({ scope: e.target.value })}
-        variant="outlined"
-        fullWidth
-        margin="normal"
+      <Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
       >
-        {scopes.map((scopeOption) => (
-          <MenuItem key={scopeOption.value} value={scopeOption.value}>
-            {scopeOption.label}
-          </MenuItem>
-        ))}
-      </TextField>
-      <Button
-        variant="contained"
-        color="primary"
-        fullWidth
-        onClick={handleNext}
-        disabled={!formData.lineNumber || !formData.scope}
-      >
-        Next
-      </Button>
+        <AnimatedButton
+          variant="contained"
+          color="primary"
+          fullWidth
+          onClick={handleReportIssue}
+          sx={{ mb: 3 }}
+        >
+          GHI NHẬN VẤN ĐỀ DOWNTIME
+        </AnimatedButton>
+        <AnimatedButton
+          variant="contained"
+          color="secondary"
+          fullWidth
+          onClick={handleIssueList}
+        >
+          DANH SÁCH VẤN ĐỀ DOWNTIME
+        </AnimatedButton>
+      </Box>
     </Container>
   );
 };

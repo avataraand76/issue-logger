@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Container,
   TextField,
+  Typography,
   Button,
   MenuItem,
   Autocomplete,
@@ -38,10 +39,13 @@ const MachineryPage = () => {
 
   return (
     <Container maxWidth="sm">
+      <Typography variant="h5" gutterBottom>
+        VẤN ĐỀ LIÊN QUAN ĐẾN MÁY MÓC
+      </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
           select
-          label="Chủng loại thiết bị"
+          label="Chọn loại thiết bị"
           value={formData.machineryType}
           onChange={(e) => updateFormData({ machineryType: e.target.value })}
           variant="outlined"

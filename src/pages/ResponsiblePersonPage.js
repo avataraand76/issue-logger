@@ -87,7 +87,7 @@ const ResponsiblePersonPage = () => {
   return (
     <Container maxWidth="sm">
       <Typography variant="h5" gutterBottom>
-        Người chịu trách nhiệm
+        NGƯỜI CHỊU TRÁCH NHIỆM
       </Typography>
       <form onSubmit={handleSubmit}>
         <Autocomplete

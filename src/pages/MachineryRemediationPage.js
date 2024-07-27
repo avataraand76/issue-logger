@@ -34,7 +34,7 @@ const MachineryRemediationPage = () => {
   return (
     <Container maxWidth="sm">
       <Typography variant="h5" gutterBottom>
-        Hành động khắc phục
+        HÀNH ĐỘNG KHẮC PHỤC
       </Typography>
       <form onSubmit={handleSubmit}>
         <FormControl component="fieldset" fullWidth margin="normal">
@@ -98,7 +98,7 @@ const MachineryRemediationPage = () => {
           onClick={() => navigate(-1)}
           style={{ marginTop: "10px" }}
         >
-          Quay lại
+          Back
         </Button>
       </form>
     </Container>
