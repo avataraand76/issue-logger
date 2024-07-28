@@ -1,5 +1,5 @@
-// src/data/machineryRemediationOptions.js
-const machineryRemediationOptions = [
+// src/data/remediationOptions.js
+const remediationOptions = [
   "Cơ điện sửa máy tại chỗ",
   "Đổi máy dự phòng",
   "Kỹ thuật điều chỉnh",
@@ -9,4 +9,4 @@ const machineryRemediationOptions = [
   "Khác",
 ];
 
-export default machineryRemediationOptions;
+export default remediationOptions;

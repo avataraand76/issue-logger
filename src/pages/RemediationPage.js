@@ -1,4 +1,4 @@
-// src/pages/MachineryRemediationPage.js
+// src/pages/RemediationPage.js (renamed from MachineryRemediationPage.js)
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -15,10 +15,10 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useFormContext } from "../context/FormContext";
-import machineryRemediationOptions from "../data/machineryRemediationOptions";
+import remediationOptions from "../data/remediationOptions";
 import Header from "../components/Header";
 
-const MachineryRemediationPage = () => {
+const RemediationPage = () => {
   const { formData, updateFormData } = useFormContext();
   const navigate = useNavigate();
 
@@ -47,7 +47,7 @@ const MachineryRemediationPage = () => {
               value={formData.remediation}
               onChange={(e) => updateFormData({ remediation: e.target.value })}
             >
-              {machineryRemediationOptions.map((option) => (
+              {remediationOptions.map((option) => (
                 <FormControlLabel
                   key={option}
                   value={option}
@@ -109,4 +109,4 @@ const MachineryRemediationPage = () => {
   );
 };
 
-export default MachineryRemediationPage;
+export default RemediationPage;

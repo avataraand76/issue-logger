@@ -30,7 +30,7 @@ const MachineryPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!isFormValid()) return;
-    navigate("/machineryremediation");
+    navigate("/remediation");
   };
 
   useEffect(() => {
@@ -84,7 +84,7 @@ const MachineryPage = () => {
           )}
           <Autocomplete
             value={formData.issue}
-            options={issueOptions}
+            options={issueOptions.machinery}
             onChange={(e, newValue) => {
               updateFormData({ issue: newValue });
               if (newValue !== "Khác") updateFormData({ otherIssue: "" });
