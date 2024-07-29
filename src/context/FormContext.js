@@ -20,8 +20,22 @@ export const FormProvider = ({ children }) => {
     setFormData((prevData) => ({ ...prevData, ...newData }));
   }, []);
 
+  const resetFormData = useCallback(() => {
+    setFormData({
+      lineNumber: "",
+      scope: "",
+      machineryType: "",
+      code: "",
+      issue: "",
+      otherIssue: "",
+      remediation: "",
+      otherRemediation: "",
+      responsiblePerson: "",
+    });
+  }, []);
+
   return (
-    <FormContext.Provider value={{ formData, updateFormData }}>
+    <FormContext.Provider value={{ formData, updateFormData, resetFormData }}>
       {children}
     </FormContext.Provider>
   );

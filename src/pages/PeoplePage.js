@@ -16,7 +16,7 @@ import issueOptions from "../data/issueOptions";
 import Header from "../components/Header";
 
 const PeoplePage = () => {
-  const { formData, updateFormData } = useFormContext();
+  const { formData, updateFormData, resetFormData } = useFormContext();
   const navigate = useNavigate();
 
   const isFormValid = () => {
@@ -28,6 +28,11 @@ const PeoplePage = () => {
     e.preventDefault();
     if (!isFormValid()) return;
     navigate("/remediation");
+  };
+
+  const handleBack = () => {
+    resetFormData();
+    navigate(-1);
   };
 
   return (
@@ -92,7 +97,7 @@ const PeoplePage = () => {
             variant="outlined"
             color="secondary"
             fullWidth
-            onClick={() => navigate(-1)}
+            onClick={handleBack}
             style={{ marginTop: "10px" }}
           >
             Back

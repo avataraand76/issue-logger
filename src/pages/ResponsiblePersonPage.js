@@ -19,7 +19,7 @@ import peopleList from "../data/peopleList";
 import Header from "../components/Header";
 
 const ResponsiblePersonPage = () => {
-  const { formData, updateFormData } = useFormContext();
+  const { formData, updateFormData, resetFormData } = useFormContext();
   const [openDialog, setOpenDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -92,6 +92,7 @@ const ResponsiblePersonPage = () => {
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
+    resetFormData();
     navigate("/");
   };
 

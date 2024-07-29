@@ -36,3 +36,26 @@
     transform: rotate(360deg);
   }
 }
+
+@media screen and (max-width: 600px) {
+  .container {
+    padding: 10px;
+  }
+
+  h5 {
+    font-size: 1.2rem;
+  }
+
+  .MuiButton-root {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+  }
+
+  .MuiTextField-root {
+    margin-bottom: 10px;
+  }
+
+  .MuiAutocomplete-root {
+    margin-bottom: 10px;
+  }
+}

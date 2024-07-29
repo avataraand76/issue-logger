@@ -6,8 +6,8 @@ import { styled } from "@mui/system";
 import Header from "../components/Header";
 
 const AnimatedButton = styled(Button)(({ theme }) => ({
-  padding: "20px 0",
-  fontSize: "1.2rem",
+  padding: "15px 0",
+  fontSize: "1.1rem",
   transition: "all 0.3s ease-in-out",
   "&:hover": {
     transform: "scale(1.05)",
@@ -27,16 +27,29 @@ const HomePage = () => {
   };
 
   return (
-    <>
+    <Box
+      display="flex"
+      flexDirection="column"
+      height="100vh"
+      overflow="hidden"
+      sx={{
+        "& > :first-of-type": {
+          flexShrink: 0,
+        },
+      }}
+    >
       <Header />
-      <Container maxWidth="sm">
-        <Box
-          display="flex"
-          flexDirection="column"
-          justifyContent="center"
-          alignItems="center"
-          minHeight="100vh"
-        >
+      <Container
+        maxWidth="sm"
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          py: 2, // Add padding top and bottom
+        }}
+      >
+        <Box>
           <AnimatedButton
             variant="contained"
             color="primary"
@@ -56,7 +69,7 @@ const HomePage = () => {
           </AnimatedButton>
         </Box>
       </Container>
-    </>
+    </Box>
   );
 };
 
