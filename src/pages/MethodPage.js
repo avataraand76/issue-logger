@@ -1,63 +1,105 @@
 // src/pages/MethodPage.js
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Container, TextField, Button } from "@mui/material";
+import {
+  Container,
+  TextField,
+  Typography,
+  Button,
+  Autocomplete,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import { useFormContext } from "../context/FormContext";
+import issueOptions from "../data/issueOptions";
+import Header from "../components/Header";
 
 const MethodPage = () => {
-  const [issue, setIssue] = useState("");
-  const [resolution, setResolution] = useState("");
-  const [responsiblePerson, setResponsiblePerson] = useState("");
+  const { formData, updateFormData } = useFormContext();
   const navigate = useNavigate();
+
+  const isFormValid = () => {
+    if (formData.issue === "Khác") return formData.otherIssue.trim() !== "";
+    return !!formData.issue;
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log({ issue, resolution, responsiblePerson });
-  };
-
-  const handleBack = () => {
-    navigate(-1);
+    if (!isFormValid()) return;
+    navigate("/remediation");
   };
 
   return (
-    <Container maxWidth="sm">
-      <form onSubmit={handleSubmit}>
-        <TextField
-          label="Issue"
-          value={issue}
-          onChange={(e) => setIssue(e.target.value)}
-          variant="outlined"
-          fullWidth
-          margin="normal"
-        />
-        <TextField
-          label="Resolution Method"
-          value={resolution}
-          onChange={(e) => setResolution(e.target.value)}
-          variant="outlined"
-          fullWidth
-          margin="normal"
-        />
-        <TextField
-          label="Responsible Person"
-          value={responsiblePerson}
-          onChange={(e) => setResponsiblePerson(e.target.value)}
-          variant="outlined"
-          fullWidth
-          margin="normal"
-        />
-        <Button type="submit" variant="contained" color="primary" fullWidth>
-          Next
-        </Button>
-        <Button
-          variant="outlined"
-          color="secondary"
-          fullWidth
-          onClick={handleBack}
-        >
-          Back
-        </Button>
-      </form>
-    </Container>
+    <>
+      <Header />
+      <Container maxWidth="sm">
+        <Typography variant="h5" gutterBottom>
+          VẤN ĐỀ LIÊN QUAN ĐẾN PHƯƠNG PHÁP
+        </Typography>
+        <form onSubmit={handleSubmit}>
+          <Autocomplete
+            value={formData.issue}
+            options={issueOptions.method}
+            onChange={(e, newValue) => {
+              updateFormData({ issue: newValue });
+              if (newValue !== "Khác") updateFormData({ otherIssue: "" });
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Vấn đề"
+                variant="outlined"
+                margin="normal"
+                fullWidth
+              />
+            )}
+            clearIcon={<CloseIcon fontSize="small" />}
+          />
+          {formData.issue === "Khác" && (
+            <TextField
+              label="Nhập vấn đề khác"
+              value={formData.otherIssue}
+              onChange={(e) => updateFormData({ otherIssue: e.target.value })}
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              InputProps={{
+                endAdornment: formData.otherIssue && (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="clear input"
+                      onClick={() => updateFormData({ otherIssue: "" })}
+                      edge="end"
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            disabled={!isFormValid()}
+          >
+            Next
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            fullWidth
+            onClick={() => navigate(-1)}
+            style={{ marginTop: "10px" }}
+          >
+            Back
+          </Button>
+        </form>
+      </Container>
+    </>
   );
 };
 

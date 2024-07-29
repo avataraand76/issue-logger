@@ -40,10 +40,6 @@ const ResponsiblePersonPage = () => {
       submissionTime: timestamp,
       lineNumber: formData.lineNumber,
       scope: formData.scope,
-      machineryType: formData.machineryType,
-      code: formData.code
-        ? `${formData.code.value} - ${formData.code.label}`
-        : "",
       issue:
         formData.issue === "Khác"
           ? `Khác - ${formData.otherIssue}`
@@ -55,9 +51,17 @@ const ResponsiblePersonPage = () => {
       responsiblePerson: formData.responsiblePerson,
     };
 
+    // Chỉ thêm machineryType và code nếu phạm vi là máy móc
+    if (formData.scope === "Máy móc") {
+      data.machineryType = formData.machineryType;
+      data.code = formData.code
+        ? `${formData.code.value} - ${formData.code.label}`
+        : "";
+    }
+
     try {
       const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbyrB4N-uLjwzfA-VKx5W8Lyc9aKCzaOV2zzrTudywl5g-8hNGj2Be8I2y_szMFwrmiziQ/exec",
+        "https://script.google.com/macros/s/AKfycbxLMYo0r0W4AX2_3VsrmA8NWeve5PY-uk2-HubH9Yz23-pHHBeZ1sMQNwm6SkgEEHsPSw/exec",
         {
           method: "POST",
           body: JSON.stringify(data),

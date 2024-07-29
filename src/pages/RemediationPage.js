@@ -1,4 +1,4 @@
-// src/pages/RemediationPage.js (renamed from MachineryRemediationPage.js)
+// src/pages/RemediationPage.js
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
