@@ -45,7 +45,7 @@ const IssueListPage = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbxLMYo0r0W4AX2_3VsrmA8NWeve5PY-uk2-HubH9Yz23-pHHBeZ1sMQNwm6SkgEEHsPSw/exec"
+        "https://script.google.com/macros/s/AKfycbxyZSwPl9UHgE2MLhz6dH8kQvVHbswJq-wlNFrtjcto7yuKTj3hbAPAgvah9CNuPGGTiA/exec"
       );
       const data = await response.json();
       setIssues(data.filter((issue) => !issue.endTime));
@@ -108,13 +108,14 @@ const IssueListPage = () => {
       });
 
       const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbxLMYo0r0W4AX2_3VsrmA8NWeve5PY-uk2-HubH9Yz23-pHHBeZ1sMQNwm6SkgEEHsPSw/exec",
+        "https://script.google.com/macros/s/AKfycbxyZSwPl9UHgE2MLhz6dH8kQvVHbswJq-wlNFrtjcto7yuKTj3hbAPAgvah9CNuPGGTiA/exec",
         {
           method: "POST",
           body: JSON.stringify({
             action: "endIssue",
             id: selectedIssue.id,
             endTime,
+            calculateDowntime: true, // Thêm flag này để yêu cầu tính toán thời gian downtime
           }),
         }
       );

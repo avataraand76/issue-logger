@@ -27,7 +27,7 @@ const ReportIssuePage = () => {
     { value: "Con người", label: "Con người" },
     { value: "Nguyên phụ liệu", label: "Nguyên phụ liệu" },
     { value: "Phương pháp", label: "Phương pháp" },
-    { value: "Khác", label: "Khác" },
+    // { value: "Khác", label: "Khác" },
   ];
 
   const handleNext = () => {
@@ -45,9 +45,9 @@ const ReportIssuePage = () => {
       case "Phương pháp":
         navigate("/method");
         break;
-      case "Khác":
-        navigate("/other");
-        break;
+      // case "Khác":
+      //   navigate("/other");
+      //   break;
       default:
         break;
     }

@@ -62,7 +62,7 @@ const ResponsiblePersonPage = () => {
 
     try {
       const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbxLMYo0r0W4AX2_3VsrmA8NWeve5PY-uk2-HubH9Yz23-pHHBeZ1sMQNwm6SkgEEHsPSw/exec",
+        "https://script.google.com/macros/s/AKfycbxyZSwPl9UHgE2MLhz6dH8kQvVHbswJq-wlNFrtjcto7yuKTj3hbAPAgvah9CNuPGGTiA/exec",
         {
           method: "POST",
           body: JSON.stringify(data),
