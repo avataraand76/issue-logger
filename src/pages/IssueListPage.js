@@ -17,6 +17,8 @@ import IssueFilters from "../components/IssueFilters";
 import IssueDetails from "../components/IssueDetails";
 import { useNavigate } from "react-router-dom";
 import { format, parse, isValid } from "date-fns";
+import LoadingAnimation from "../components/LoadingAnimation";
+import { Snackbar, Alert } from "@mui/material";
 
 const IssueListPage = () => {
   const [issues, setIssues] = useState([]);
@@ -28,6 +30,11 @@ const IssueListPage = () => {
   const [expandedIssue, setExpandedIssue] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadingEnd, setLoadingEnd] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -117,6 +124,14 @@ const IssueListPage = () => {
         if (result.status === "success") {
           setIssues(issues.filter((issue) => issue.id !== selectedIssue.id));
           setOpenDialog(false);
+          setSnackbar({
+            open: true,
+            message: "Cập nhật thành công!",
+            severity: "success",
+          });
+          setTimeout(() => {
+            setSnackbar((prevState) => ({ ...prevState, open: false }));
+          }, 3000);
         } else {
           throw new Error(result.message || "Failed to update end time");
         }
@@ -125,6 +140,14 @@ const IssueListPage = () => {
       }
     } catch (error) {
       console.error("Error ending issue:", error);
+      setSnackbar({
+        open: true,
+        message: "Cập nhật thất bại!",
+        severity: "error",
+      });
+      setTimeout(() => {
+        setSnackbar((prevState) => ({ ...prevState, open: false }));
+      }, 3000);
     } finally {
       setLoadingEnd(false);
     }
@@ -136,6 +159,13 @@ const IssueListPage = () => {
 
   const handleExpand = (id) => {
     setExpandedIssue(expandedIssue === id ? null : id);
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbar({ ...snackbar, open: false });
   };
 
   return (
@@ -152,28 +182,28 @@ const IssueListPage = () => {
         <Typography variant="h4" gutterBottom>
           DANH SÁCH VẤN ĐỀ DOWNTIME
         </Typography>
-        <IssueFilters
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          filterDate={filterDate}
-          setFilterDate={setFilterDate}
-        />
-        <Fade in={!loading} timeout={1000}>
-          <Box>
-            {loading ? (
-              <Box display="flex" justifyContent="center" my={4}>
-                <CircularProgress />
+        {loading ? (
+          <LoadingAnimation />
+        ) : (
+          <>
+            <IssueFilters
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              filterDate={filterDate}
+              setFilterDate={setFilterDate}
+            />
+            <Fade in={!loading} timeout={1000}>
+              <Box>
+                <IssueDetails
+                  filteredIssues={filteredIssues}
+                  expandedIssue={expandedIssue}
+                  handleExpand={handleExpand}
+                  handleEndIssue={handleEndIssue}
+                />
               </Box>
-            ) : (
-              <IssueDetails
-                filteredIssues={filteredIssues}
-                expandedIssue={expandedIssue}
-                handleExpand={handleExpand}
-                handleEndIssue={handleEndIssue}
-              />
-            )}
-          </Box>
-        </Fade>
+            </Fade>
+          </>
+        )}
       </Container>
       <Dialog
         open={openDialog}
@@ -199,6 +229,19 @@ const IssueListPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 };
