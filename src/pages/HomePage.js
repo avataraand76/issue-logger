@@ -46,7 +46,8 @@ const HomePage = () => {
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          py: 2, // Add padding top and bottom
+          py: 2,
+          paddingBottom: "350px",
         }}
       >
         <Box>
