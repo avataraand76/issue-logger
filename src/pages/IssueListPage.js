@@ -45,7 +45,7 @@ const IssueListPage = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbxyZSwPl9UHgE2MLhz6dH8kQvVHbswJq-wlNFrtjcto7yuKTj3hbAPAgvah9CNuPGGTiA/exec"
+        "https://script.google.com/macros/s/AKfycbyoSxzoL9oE05F1rUeJ7_55KK_KGUS8-rUBeha_nFp2NUpx6saCFsRzBt8ABgBpmewC6A/exec"
       );
       const data = await response.json();
       setIssues(data.filter((issue) => !issue.endTime));
@@ -108,7 +108,7 @@ const IssueListPage = () => {
       });
 
       const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbxyZSwPl9UHgE2MLhz6dH8kQvVHbswJq-wlNFrtjcto7yuKTj3hbAPAgvah9CNuPGGTiA/exec",
+        "https://script.google.com/macros/s/AKfycbyoSxzoL9oE05F1rUeJ7_55KK_KGUS8-rUBeha_nFp2NUpx6saCFsRzBt8ABgBpmewC6A/exec",
         {
           method: "POST",
           body: JSON.stringify({

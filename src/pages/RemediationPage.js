@@ -1,5 +1,5 @@
 // src/pages/RemediationPage.js
-import React from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -22,6 +22,10 @@ const RemediationPage = () => {
   const { formData, updateFormData } = useFormContext();
   const navigate = useNavigate();
 
+  const options = useMemo(() => {
+    return remediationOptions[formData.scope] || [];
+  }, [formData.scope]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (
@@ -39,6 +43,9 @@ const RemediationPage = () => {
         <Typography variant="h5" gutterBottom>
           HÀNH ĐỘNG KHẮC PHỤC
         </Typography>
+        <Typography variant="subtitle1" gutterBottom>
+          Phạm vi: {formData.scope}
+        </Typography>
         <form onSubmit={handleSubmit}>
           <FormControl component="fieldset" fullWidth margin="normal">
             <RadioGroup
@@ -47,7 +54,7 @@ const RemediationPage = () => {
               value={formData.remediation}
               onChange={(e) => updateFormData({ remediation: e.target.value })}
             >
-              {remediationOptions.map((option) => (
+              {options.map((option) => (
                 <FormControlLabel
                   key={option}
                   value={option}
