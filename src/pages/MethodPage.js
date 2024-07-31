@@ -42,7 +42,7 @@ const MethodPage = () => {
         <Typography variant="h5" gutterBottom>
           VẤN ĐỀ LIÊN QUAN ĐẾN PHƯƠNG PHÁP
         </Typography>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} autoComplete="off">
           <Autocomplete
             value={formData.issue}
             options={issueOptions.method}
@@ -57,6 +57,10 @@ const MethodPage = () => {
                 variant="outlined"
                 margin="normal"
                 fullWidth
+                InputProps={{
+                  ...params.InputProps,
+                  autoComplete: "new-password",
+                }}
               />
             )}
             clearIcon={<CloseIcon fontSize="small" />}
@@ -70,6 +74,7 @@ const MethodPage = () => {
               fullWidth
               margin="normal"
               InputProps={{
+                autoComplete: "new-password",
                 endAdornment: formData.otherIssue && (
                   <InputAdornment position="end">
                     <IconButton

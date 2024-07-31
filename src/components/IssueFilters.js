@@ -22,54 +22,60 @@ const IssueFilters = ({
 
   return (
     <>
-      <Box mb={2}>
-        <TextField
-          label="Tìm kiếm"
-          variant="outlined"
-          fullWidth
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </Box>
-      <Box mb={2} display="flex" alignItems="center">
-        <LocalizationProvider dateAdapter={AdapterDateFns} locale={vi}>
-          <DatePicker
-            label="Lọc theo ngày"
-            value={filterDate}
-            onChange={(newValue) => {
-              if (isValid(newValue)) {
-                setFilterDate(newValue);
-              }
+      <form autoComplete="off">
+        <Box mb={2}>
+          <TextField
+            label="Tìm kiếm"
+            variant="outlined"
+            fullWidth
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            inputProps={{
+              autoComplete: "new-password",
             }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                InputProps={{
-                  ...params.InputProps,
-                  readOnly: true,
-                }}
-              />
-            )}
-            inputFormat="dd/MM/yyyy"
           />
-        </LocalizationProvider>
-        <Button
-          onClick={setTodayDate}
-          variant="contained"
-          color="primary"
-          style={{ marginLeft: "10px" }}
-        >
-          Today
-        </Button>
-        <Button
-          onClick={clearDate}
-          variant="contained"
-          color="secondary"
-          style={{ marginLeft: "10px" }}
-        >
-          Clear
-        </Button>
-      </Box>
+        </Box>
+        <Box mb={2} display="flex" alignItems="center">
+          <LocalizationProvider dateAdapter={AdapterDateFns} locale={vi}>
+            <DatePicker
+              label="Lọc theo ngày"
+              value={filterDate}
+              onChange={(newValue) => {
+                if (isValid(newValue)) {
+                  setFilterDate(newValue);
+                }
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  InputProps={{
+                    ...params.InputProps,
+                    readOnly: true,
+                    autoComplete: "new-password",
+                  }}
+                />
+              )}
+              inputFormat="dd/MM/yyyy"
+            />
+          </LocalizationProvider>
+          <Button
+            onClick={setTodayDate}
+            variant="contained"
+            color="primary"
+            style={{ marginLeft: "10px" }}
+          >
+            Today
+          </Button>
+          <Button
+            onClick={clearDate}
+            variant="contained"
+            color="secondary"
+            style={{ marginLeft: "10px" }}
+          >
+            Clear
+          </Button>
+        </Box>
+      </form>
     </>
   );
 };

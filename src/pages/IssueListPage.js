@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { format, parse, isValid } from "date-fns";
 import LoadingAnimation from "../components/LoadingAnimation";
 import { Snackbar, Alert } from "@mui/material";
+import { fetchIssues, endIssue } from "../data/api";
 
 const IssueListPage = () => {
   const [issues, setIssues] = useState([]);
@@ -38,19 +39,30 @@ const IssueListPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchIssues();
+    fetchIssuesData();
   }, []);
 
-  const fetchIssues = async () => {
+  const fetchIssuesData = async () => {
     setLoading(true);
     try {
-      const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbyoSxzoL9oE05F1rUeJ7_55KK_KGUS8-rUBeha_nFp2NUpx6saCFsRzBt8ABgBpmewC6A/exec"
-      );
-      const data = await response.json();
-      setIssues(data.filter((issue) => !issue.endTime));
+      const data = await fetchIssues();
+      if (Array.isArray(data)) {
+        setIssues(data.filter((issue) => !issue.endTime));
+      } else {
+        console.error("Received data is not an array:", data);
+        setSnackbar({
+          open: true,
+          message: "Dữ liệu không hợp lệ",
+          severity: "error",
+        });
+      }
     } catch (error) {
       console.error("Error fetching issues:", error);
+      setSnackbar({
+        open: true,
+        message: "Không thể tải dữ liệu. Vui lòng thử lại sau.",
+        severity: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -63,6 +75,9 @@ const IssueListPage = () => {
       filtered = filtered.filter(
         (issue) =>
           issue.lineNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          String(issue.stationNumber)
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
           issue.scope.toLowerCase().includes(searchTerm.toLowerCase()) ||
           issue.issue.toLowerCase().includes(searchTerm.toLowerCase())
       );
@@ -107,37 +122,20 @@ const IssueListPage = () => {
         year: "numeric",
       });
 
-      const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbyoSxzoL9oE05F1rUeJ7_55KK_KGUS8-rUBeha_nFp2NUpx6saCFsRzBt8ABgBpmewC6A/exec",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            action: "endIssue",
-            id: selectedIssue.id,
-            endTime,
-            calculateDowntime: true, // Thêm flag này để yêu cầu tính toán thời gian downtime
-          }),
-        }
-      );
-
-      if (response.ok) {
-        const result = await response.json();
-        if (result.status === "success") {
-          setIssues(issues.filter((issue) => issue.id !== selectedIssue.id));
-          setOpenDialog(false);
-          setSnackbar({
-            open: true,
-            message: "Cập nhật thành công!",
-            severity: "success",
-          });
-          setTimeout(() => {
-            setSnackbar((prevState) => ({ ...prevState, open: false }));
-          }, 3000);
-        } else {
-          throw new Error(result.message || "Failed to update end time");
-        }
+      const result = await endIssue(selectedIssue.id, endTime);
+      if (result.status === "success") {
+        setIssues(issues.filter((issue) => issue.id !== selectedIssue.id));
+        setOpenDialog(false);
+        setSnackbar({
+          open: true,
+          message: "Cập nhật thành công!",
+          severity: "success",
+        });
+        setTimeout(() => {
+          setSnackbar((prev) => ({ ...prev, open: false }));
+        }, 2000);
       } else {
-        throw new Error("Failed to update end time");
+        throw new Error(result.message || "Failed to update end time");
       }
     } catch (error) {
       console.error("Error ending issue:", error);
@@ -146,9 +144,6 @@ const IssueListPage = () => {
         message: "Cập nhật thất bại!",
         severity: "error",
       });
-      setTimeout(() => {
-        setSnackbar((prevState) => ({ ...prevState, open: false }));
-      }, 3000);
     } finally {
       setLoadingEnd(false);
     }
@@ -232,7 +227,7 @@ const IssueListPage = () => {
       </Dialog>
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={6000}
+        autoHideDuration={2000}
         onClose={handleCloseSnackbar}
       >
         <Alert

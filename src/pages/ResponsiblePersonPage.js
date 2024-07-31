@@ -1,5 +1,5 @@
 // src/pages/ResponsiblePersonPage.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -17,12 +17,73 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { useFormContext } from "../context/FormContext";
 import peopleList from "../data/peopleList";
 import Header from "../components/Header";
+import { addIssue } from "../data/api";
 
 const ResponsiblePersonPage = () => {
   const { formData, updateFormData, resetFormData } = useFormContext();
   const [openDialog, setOpenDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [filteredPeopleList, setFilteredPeopleList] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    filterPeopleList(formData.lineNumber);
+  }, [formData.lineNumber]);
+
+  const filterPeopleList = (lineNumber) => {
+    if (!lineNumber) {
+      setFilteredPeopleList([]);
+      return;
+    }
+
+    let filteredList = [];
+    let workshopList = [];
+
+    if (lineNumber === "Line 20.01") {
+      const teamLeaders = peopleList.teamLeaders.filter((person) =>
+        person.includes("TỔ TRƯỞNG TỔ 20.01")
+      );
+      workshopList = peopleList.workshop2;
+      filteredList = [...teamLeaders, ...workshopList];
+    } else if (lineNumber === "Line 20") {
+      const teamLeaders = peopleList.teamLeaders.filter((person) =>
+        person.includes("TỔ TRƯỞNG TỔ 20 -")
+      );
+      workshopList = peopleList.workshop2;
+      filteredList = [...teamLeaders, ...workshopList];
+    } else {
+      const lineNum = parseInt(lineNumber.replace("Line ", ""));
+
+      if (lineNum >= 1 && lineNum <= 10) {
+        workshopList = peopleList.workshop1;
+      } else if (lineNum >= 11 && lineNum <= 20) {
+        workshopList = peopleList.workshop2;
+      } else if (lineNum >= 21 && lineNum <= 30) {
+        workshopList = peopleList.workshop3;
+      } else if (
+        (lineNum >= 31 && lineNum <= 40) ||
+        lineNumber === "Tổ hoàn thành 1 - xưởng 4" ||
+        lineNumber === "Tổ hoàn thành 2 - xưởng 4"
+      ) {
+        workshopList = peopleList.workshop4;
+      }
+
+      const teamLeaders = peopleList.teamLeaders.filter(
+        (person) =>
+          person.includes(
+            `TỔ TRƯỞNG TỔ ${lineNum.toString().padStart(2, "0")}`
+          ) ||
+          (lineNumber === "Tổ hoàn thành 1 - xưởng 4" &&
+            person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 1")) ||
+          (lineNumber === "Tổ hoàn thành 2 - xưởng 4" &&
+            person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 2"))
+      );
+
+      filteredList = [...teamLeaders, ...workshopList];
+    }
+
+    setFilteredPeopleList(filteredList);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,6 +101,7 @@ const ResponsiblePersonPage = () => {
     const data = {
       submissionTime: timestamp,
       lineNumber: formData.lineNumber,
+      stationNumber: formData.stationNumber,
       scope: formData.scope,
       issue:
         formData.issue === "Khác"
@@ -52,7 +114,6 @@ const ResponsiblePersonPage = () => {
       responsiblePerson: formData.responsiblePerson,
     };
 
-    // Chỉ thêm machineryType và code nếu phạm vi là máy móc
     if (formData.scope === "Máy móc") {
       data.machineryType = formData.machineryType;
       data.code = formData.code
@@ -61,32 +122,20 @@ const ResponsiblePersonPage = () => {
     }
 
     try {
-      const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbyoSxzoL9oE05F1rUeJ7_55KK_KGUS8-rUBeha_nFp2NUpx6saCFsRzBt8ABgBpmewC6A/exec",
-        {
-          method: "POST",
-          body: JSON.stringify(data),
-        }
-      );
-
-      if (response.ok) {
-        const result = await response.json();
-        if (result.status === "success") {
-          setIsLoading(false);
-          setOpenDialog(true);
-          setTimeout(() => {
-            handleCloseDialog();
-          }, 2000);
-        } else {
-          throw new Error(result.message || "Failed to save data");
-        }
+      const result = await addIssue(data);
+      if (result.status === "success") {
+        setIsLoading(false);
+        setOpenDialog(true);
+        setTimeout(() => {
+          handleCloseDialog();
+        }, 2000);
       } else {
-        throw new Error("Failed to save data");
+        throw new Error(result.message || "Failed to save data");
       }
     } catch (error) {
       console.error("Error saving data:", error);
       setIsLoading(false);
-      // Xử lý lỗi ở đây
+      // Handle error here
     }
   };
 
@@ -103,9 +152,9 @@ const ResponsiblePersonPage = () => {
         <Typography variant="h5" gutterBottom>
           NGƯỜI CHỊU TRÁCH NHIỆM
         </Typography>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} autoComplete="off">
           <Autocomplete
-            options={peopleList}
+            options={filteredPeopleList}
             renderInput={(params) => (
               <TextField
                 {...params}

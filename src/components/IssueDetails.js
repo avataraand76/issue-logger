@@ -30,7 +30,7 @@ const IssueDetails = ({
             }}
           >
             <ListItemText
-              primary={`${issue.lineNumber} - ${issue.scope} - ${issue.issue}`}
+              primary={`${issue.lineNumber} - Trạm ${issue.stationNumber} - ${issue.scope} - ${issue.issue}`}
               secondary={`Thời gian bắt đầu: ${issue.submissionTime}`}
             />
             {expandedIssue === issue.id ? <ExpandLess /> : <ExpandMore />}

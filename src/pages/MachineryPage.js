@@ -50,7 +50,7 @@ const MachineryPage = () => {
         <Typography variant="h5" gutterBottom>
           VẤN ĐỀ LIÊN QUAN ĐẾN MÁY MÓC
         </Typography>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} autoComplete="off">
           <TextField
             select
             label="Chọn loại thiết bị"
@@ -59,6 +59,9 @@ const MachineryPage = () => {
             variant="outlined"
             fullWidth
             margin="normal"
+            InputProps={{
+              autoComplete: "new-password",
+            }}
           >
             <MenuItem value="Thiết bị may">Thiết bị may</MenuItem>
             <MenuItem value="Thiết bị chuyên dùng">
@@ -79,6 +82,10 @@ const MachineryPage = () => {
                   variant="outlined"
                   margin="normal"
                   fullWidth
+                  InputProps={{
+                    ...params.InputProps,
+                    autoComplete: "new-password",
+                  }}
                 />
               )}
               renderOption={(props, option) => (
@@ -101,6 +108,10 @@ const MachineryPage = () => {
                 variant="outlined"
                 margin="normal"
                 fullWidth
+                InputProps={{
+                  ...params.InputProps,
+                  autoComplete: "new-password",
+                }}
               />
             )}
             clearIcon={<CloseIcon fontSize="small" />}
@@ -114,6 +125,7 @@ const MachineryPage = () => {
               fullWidth
               margin="normal"
               InputProps={{
+                autoComplete: "new-password",
                 endAdornment: formData.otherIssue && (
                   <InputAdornment position="end">
                     <IconButton

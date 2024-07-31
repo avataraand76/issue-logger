@@ -17,7 +17,7 @@ const remediationOptions = {
     "Kỹ thuật chỉnh lại máy",
     "Sắp xếp người hỗ trợ",
     "Kỹ thuật hướng dẫn và sắp xếp người hỗ trợ",
-    "Hường dẫn và yêu cầu kiểm tra chất lượng tại nguồn",
+    "Hướng dẫn và yêu cầu kiểm tra chất lượng tại nguồn",
     "Thiết lập máy trước khi chuyển đổi",
     "Đào tạo, hướng dẫn cho công nhân",
     "Khác",

@@ -46,7 +46,7 @@ const RemediationPage = () => {
         <Typography variant="subtitle1" gutterBottom>
           Phạm vi: {formData.scope}
         </Typography>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} autoComplete="off">
           <FormControl component="fieldset" fullWidth margin="normal">
             <RadioGroup
               aria-label="remediation"
@@ -75,6 +75,7 @@ const RemediationPage = () => {
               fullWidth
               margin="normal"
               InputProps={{
+                autoComplete: "new-password",
                 endAdornment: formData.otherRemediation && (
                   <InputAdornment position="end">
                     <IconButton
