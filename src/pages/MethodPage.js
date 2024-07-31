@@ -14,6 +14,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useFormContext } from "../context/FormContext";
 import issueOptions from "../data/issueOptions";
 import Header from "../components/Header";
+import AutofillPreventer from "../components/AutofillPreventer";
 
 const MethodPage = () => {
   const { formData, updateFormData, resetFormData } = useFormContext();
@@ -43,6 +44,7 @@ const MethodPage = () => {
           VẤN ĐỀ LIÊN QUAN ĐẾN PHƯƠNG PHÁP
         </Typography>
         <form onSubmit={handleSubmit} autoComplete="off">
+          <AutofillPreventer />
           <Autocomplete
             value={formData.issue}
             options={issueOptions.method}
@@ -57,6 +59,7 @@ const MethodPage = () => {
                 variant="outlined"
                 margin="normal"
                 fullWidth
+                name="custom-method-issue"
                 InputProps={{
                   ...params.InputProps,
                   autoComplete: "new-password",
@@ -73,6 +76,7 @@ const MethodPage = () => {
               variant="outlined"
               fullWidth
               margin="normal"
+              name="custom-method-other-issue"
               InputProps={{
                 autoComplete: "new-password",
                 endAdornment: formData.otherIssue && (

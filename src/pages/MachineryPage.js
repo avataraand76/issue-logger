@@ -16,6 +16,7 @@ import { useFormContext } from "../context/FormContext";
 import machineryCodes from "../data/machineryCodes";
 import issueOptions from "../data/issueOptions";
 import Header from "../components/Header";
+import AutofillPreventer from "../components/AutofillPreventer";
 
 const MachineryPage = () => {
   const { formData, updateFormData, resetFormData } = useFormContext();
@@ -51,6 +52,7 @@ const MachineryPage = () => {
           VẤN ĐỀ LIÊN QUAN ĐẾN MÁY MÓC
         </Typography>
         <form onSubmit={handleSubmit} autoComplete="off">
+          <AutofillPreventer />
           <TextField
             select
             label="Chọn loại thiết bị"
@@ -59,6 +61,7 @@ const MachineryPage = () => {
             variant="outlined"
             fullWidth
             margin="normal"
+            name="custom-machinery-type"
             InputProps={{
               autoComplete: "new-password",
             }}
@@ -82,6 +85,7 @@ const MachineryPage = () => {
                   variant="outlined"
                   margin="normal"
                   fullWidth
+                  name="custom-machinery-code"
                   InputProps={{
                     ...params.InputProps,
                     autoComplete: "new-password",
@@ -108,6 +112,7 @@ const MachineryPage = () => {
                 variant="outlined"
                 margin="normal"
                 fullWidth
+                name="custom-machinery-issue"
                 InputProps={{
                   ...params.InputProps,
                   autoComplete: "new-password",
@@ -124,6 +129,7 @@ const MachineryPage = () => {
               variant="outlined"
               fullWidth
               margin="normal"
+              name="custom-machinery-other-issue"
               InputProps={{
                 autoComplete: "new-password",
                 endAdornment: formData.otherIssue && (

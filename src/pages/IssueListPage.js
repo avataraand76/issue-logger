@@ -20,6 +20,7 @@ import { format, parse, isValid } from "date-fns";
 import LoadingAnimation from "../components/LoadingAnimation";
 import { Snackbar, Alert } from "@mui/material";
 import { fetchIssues, endIssue } from "../data/api";
+import AutofillPreventer from "../components/AutofillPreventer";
 
 const IssueListPage = () => {
   const [issues, setIssues] = useState([]);
@@ -168,6 +169,7 @@ const IssueListPage = () => {
     <>
       <Header />
       <Container maxWidth="md">
+        <AutofillPreventer />
         <Button
           onClick={handleBack}
           variant="outlined"

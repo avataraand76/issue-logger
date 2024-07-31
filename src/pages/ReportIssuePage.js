@@ -11,12 +11,12 @@ import {
 } from "@mui/material";
 import { useFormContext } from "../context/FormContext";
 import Header from "../components/Header";
+import AutofillPreventer from "../components/AutofillPreventer";
 
 const ReportIssuePage = () => {
   const { formData, updateFormData } = useFormContext();
   const navigate = useNavigate();
 
-  // Danh sách các số chuyền và nhãn của chúng
   const lineNumbers = [
     ...Array.from({ length: 12 }, (_, i) => ({
       value: i + 1,
@@ -79,7 +79,8 @@ const ReportIssuePage = () => {
         <Typography variant="h5" gutterBottom>
           GHI NHẬN VẤN ĐỀ DOWNTIME
         </Typography>
-        <form onSubmit={(e) => e.preventDefault()} autocomplete="off">
+        <form onSubmit={(e) => e.preventDefault()} autoComplete="off">
+          <AutofillPreventer />
           <Autocomplete
             options={lineNumbers}
             getOptionLabel={(option) => option.label}
@@ -98,9 +99,9 @@ const ReportIssuePage = () => {
                 margin="normal"
                 InputProps={{
                   ...params.InputProps,
-                  autocomplete: "new-password",
+                  autoComplete: "new-password",
                   form: {
-                    autocomplete: "off",
+                    autoComplete: "off",
                   },
                 }}
               />
@@ -126,9 +127,9 @@ const ReportIssuePage = () => {
                 margin="normal"
                 InputProps={{
                   ...params.InputProps,
-                  autocomplete: "new-password",
+                  autoComplete: "new-password",
                   form: {
-                    autocomplete: "off",
+                    autoComplete: "off",
                   },
                 }}
               />
@@ -143,9 +144,9 @@ const ReportIssuePage = () => {
             fullWidth
             margin="normal"
             InputProps={{
-              autocomplete: "new-password",
+              autoComplete: "new-password",
               form: {
-                autocomplete: "off",
+                autoComplete: "off",
               },
             }}
           >

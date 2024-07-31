@@ -5,6 +5,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { isValid } from "date-fns";
 import vi from "date-fns/locale/vi";
+import AutofillPreventer from "../components/AutofillPreventer";
 
 const IssueFilters = ({
   searchTerm,
@@ -23,6 +24,7 @@ const IssueFilters = ({
   return (
     <>
       <form autoComplete="off">
+        <AutofillPreventer />
         <Box mb={2}>
           <TextField
             label="Tìm kiếm"
@@ -32,6 +34,9 @@ const IssueFilters = ({
             onChange={(e) => setSearchTerm(e.target.value)}
             inputProps={{
               autoComplete: "new-password",
+              form: {
+                autoComplete: "off",
+              },
             }}
           />
         </Box>
@@ -52,6 +57,9 @@ const IssueFilters = ({
                     ...params.InputProps,
                     readOnly: true,
                     autoComplete: "new-password",
+                    form: {
+                      autoComplete: "off",
+                    },
                   }}
                 />
               )}

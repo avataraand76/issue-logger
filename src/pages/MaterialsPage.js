@@ -14,6 +14,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useFormContext } from "../context/FormContext";
 import issueOptions from "../data/issueOptions";
 import Header from "../components/Header";
+import AutofillPreventer from "../components/AutofillPreventer";
 
 const MaterialsPage = () => {
   const { formData, updateFormData, resetFormData } = useFormContext();
@@ -43,6 +44,7 @@ const MaterialsPage = () => {
           VẤN ĐỀ LIÊN QUAN ĐẾN NGUYÊN PHỤ LIỆU
         </Typography>
         <form onSubmit={handleSubmit} autoComplete="off">
+          <AutofillPreventer />
           <Autocomplete
             value={formData.issue}
             options={issueOptions.materials}
@@ -57,6 +59,7 @@ const MaterialsPage = () => {
                 variant="outlined"
                 margin="normal"
                 fullWidth
+                name="custom-materials-issue"
                 InputProps={{
                   ...params.InputProps,
                   autoComplete: "new-password",
@@ -73,6 +76,7 @@ const MaterialsPage = () => {
               variant="outlined"
               fullWidth
               margin="normal"
+              name="custom-materials-other-issue"
               InputProps={{
                 autoComplete: "new-password",
                 endAdornment: formData.otherIssue && (

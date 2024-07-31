@@ -17,6 +17,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useFormContext } from "../context/FormContext";
 import remediationOptions from "../data/remediationOptions";
 import Header from "../components/Header";
+import AutofillPreventer from "../components/AutofillPreventer";
 
 const RemediationPage = () => {
   const { formData, updateFormData } = useFormContext();
@@ -47,6 +48,7 @@ const RemediationPage = () => {
           Phạm vi: {formData.scope}
         </Typography>
         <form onSubmit={handleSubmit} autoComplete="off">
+          <AutofillPreventer />
           <FormControl component="fieldset" fullWidth margin="normal">
             <RadioGroup
               aria-label="remediation"

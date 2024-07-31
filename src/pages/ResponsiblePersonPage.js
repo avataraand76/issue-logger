@@ -18,6 +18,7 @@ import { useFormContext } from "../context/FormContext";
 import peopleList from "../data/peopleList";
 import Header from "../components/Header";
 import { addIssue } from "../data/api";
+import AutofillPreventer from "../components/AutofillPreventer";
 
 const ResponsiblePersonPage = () => {
   const { formData, updateFormData, resetFormData } = useFormContext();
@@ -153,6 +154,7 @@ const ResponsiblePersonPage = () => {
           NGƯỜI CHỊU TRÁCH NHIỆM
         </Typography>
         <form onSubmit={handleSubmit} autoComplete="off">
+          <AutofillPreventer />
           <Autocomplete
             options={filteredPeopleList}
             renderInput={(params) => (
@@ -162,6 +164,13 @@ const ResponsiblePersonPage = () => {
                 variant="outlined"
                 fullWidth
                 margin="normal"
+                InputProps={{
+                  ...params.InputProps,
+                  autoComplete: "new-password",
+                  form: {
+                    autoComplete: "off",
+                  },
+                }}
               />
             )}
             value={formData.responsiblePerson}
