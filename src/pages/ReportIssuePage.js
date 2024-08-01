@@ -40,6 +40,7 @@ const ReportIssuePage = () => {
       label: `${i + 1}`,
     })),
     { value: "QC", label: "QC" },
+    { value: "KT", label: "KỸ THUẬT" },
     { value: "DG", label: "ĐÓNG GÓI" },
   ];
 

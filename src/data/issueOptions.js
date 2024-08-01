@@ -2,7 +2,7 @@
 const issueOptions = {
   machinery: [
     "Máy nỗi chỉ",
-    "Máy may gãy kim",
+    "Máy gãy kim",
     "Máy không cắt chỉ",
     "Máy may không đạt tiêu chuẩn chất lượng (nhăn, vặn xếp ly, lùa....)",
     "Máy hư bàn lừa/chân vịt/các bộ phận khác của máy....",
