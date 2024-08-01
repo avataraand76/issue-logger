@@ -1,5 +1,5 @@
 // src/pages/ReportIssuePage.js
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -7,7 +7,8 @@ import {
   TextField,
   Typography,
   Autocomplete,
-  MenuItem,
+  Grid,
+  Chip,
 } from "@mui/material";
 import { useFormContext } from "../context/FormContext";
 import Header from "../components/Header";
@@ -16,6 +17,8 @@ import AutofillPreventer from "../components/AutofillPreventer";
 const ReportIssuePage = () => {
   const { formData, updateFormData } = useFormContext();
   const navigate = useNavigate();
+  const [selectedStations, setSelectedStations] = useState([]);
+  const [stationInput, setStationInput] = useState({ value: "", error: "" });
 
   const lineNumbers = [
     ...Array.from({ length: 12 }, (_, i) => ({
@@ -37,7 +40,7 @@ const ReportIssuePage = () => {
       label: `${i + 1}`,
     })),
     { value: "QC", label: "QC" },
-    { value: "DG", label: "Đóng gói" },
+    { value: "DG", label: "ĐÓNG GÓI" },
   ];
 
   const scopes = [
@@ -48,10 +51,11 @@ const ReportIssuePage = () => {
     // { value: "Khác", label: "Khác" },
   ];
 
-  const handleNext = () => {
-    if (!formData.lineNumber || !formData.scope || !formData.stationNumber)
-      return;
-    switch (formData.scope) {
+  const handleScopeSelection = (selectedScope) => {
+    updateFormData({ scope: selectedScope, stationNumbers: selectedStations });
+    if (!formData.lineNumber || selectedStations.length === 0) return;
+
+    switch (selectedScope) {
       case "Máy móc":
         navigate("/machinery");
         break;
@@ -70,6 +74,26 @@ const ReportIssuePage = () => {
       default:
         break;
     }
+  };
+
+  const handleStationAdd = (event, newValue) => {
+    if (newValue) {
+      if (!selectedStations.includes(newValue.label)) {
+        setSelectedStations([...selectedStations, newValue.label]);
+        setStationInput({ value: "", error: "" });
+      } else {
+        setStationInput({
+          value: newValue.label,
+          error: `ĐÃ NHẬP TRẠM ${newValue.label} RỒI!`,
+        });
+      }
+    }
+  };
+
+  const handleStationDelete = (stationToDelete) => () => {
+    setSelectedStations(
+      selectedStations.filter((station) => station !== stationToDelete)
+    );
   };
 
   return (
@@ -110,14 +134,12 @@ const ReportIssuePage = () => {
           <Autocomplete
             options={stationNumbers}
             getOptionLabel={(option) => option.label}
-            onChange={(event, newValue) => {
-              updateFormData({ stationNumber: newValue ? newValue.label : "" });
+            onChange={handleStationAdd}
+            value={stationInput.value ? { label: stationInput.value } : null}
+            inputValue={stationInput.value}
+            onInputChange={(event, newInputValue) => {
+              setStationInput({ value: newInputValue, error: "" });
             }}
-            value={
-              stationNumbers.find(
-                (sn) => sn.label === formData.stationNumber
-              ) || null
-            }
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -125,6 +147,8 @@ const ReportIssuePage = () => {
                 variant="outlined"
                 fullWidth
                 margin="normal"
+                error={!!stationInput.error}
+                helperText={stationInput.error}
                 InputProps={{
                   ...params.InputProps,
                   autoComplete: "new-password",
@@ -135,44 +159,46 @@ const ReportIssuePage = () => {
               />
             )}
           />
-          <TextField
-            select
-            label="Phạm vi vấn đề"
-            value={formData.scope}
-            onChange={(e) => updateFormData({ scope: e.target.value })}
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            InputProps={{
-              autoComplete: "new-password",
-              form: {
-                autoComplete: "off",
-              },
-            }}
-          >
-            {scopes.map((scopeOption) => (
-              <MenuItem key={scopeOption.value} value={scopeOption.value}>
-                {scopeOption.label}
-              </MenuItem>
+          <div style={{ marginTop: 10, marginBottom: 10 }}>
+            {selectedStations.map((station) => (
+              <Chip
+                key={station}
+                label={station}
+                onDelete={handleStationDelete(station)}
+                style={{ margin: 2 }}
+              />
             ))}
-          </TextField>
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            onClick={handleNext}
-            disabled={
-              !formData.lineNumber || !formData.scope || !formData.stationNumber
-            }
+          </div>
+          <Typography
+            variant="subtitle1"
+            gutterBottom
+            style={{ marginTop: "20px" }}
           >
-            Next
-          </Button>
+            Chọn phạm vi vấn đề:
+          </Typography>
+          <Grid container spacing={2}>
+            {scopes.map((scope) => (
+              <Grid item xs={6} key={scope.value}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  onClick={() => handleScopeSelection(scope.value)}
+                  disabled={
+                    !formData.lineNumber || selectedStations.length === 0
+                  }
+                >
+                  {scope.label}
+                </Button>
+              </Grid>
+            ))}
+          </Grid>
           <Button
             variant="outlined"
             color="secondary"
             fullWidth
             onClick={() => navigate(-1)}
-            style={{ marginTop: "10px" }}
+            style={{ marginTop: "20px" }}
           >
             Back
           </Button>

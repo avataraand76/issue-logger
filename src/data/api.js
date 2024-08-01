@@ -1,7 +1,7 @@
 // src/data/api.js
 
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbxpKvXUT2846RZXaH13o090_g8Ysp_Y8uakwUyQ5EeA7uhx27NK5H1uhFP9P3WZ5Hu_0g/exec";
+  "https://script.google.com/macros/s/AKfycbwzn1b7Z9pw_qOfI3Fo_6kg2DAr1YytU0RrlKI5CoNN09dz5ddtRfyTK8nlgU2NGR9EhA/exec";
 
 export const fetchIssues = async () => {
   try {

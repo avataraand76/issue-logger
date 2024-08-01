@@ -99,10 +99,9 @@ const ResponsiblePersonPage = () => {
       year: "numeric",
     });
 
-    const data = {
+    const baseData = {
       submissionTime: timestamp,
       lineNumber: formData.lineNumber,
-      stationNumber: formData.stationNumber,
       scope: formData.scope,
       issue:
         formData.issue === "Khác"
@@ -116,23 +115,25 @@ const ResponsiblePersonPage = () => {
     };
 
     if (formData.scope === "Máy móc") {
-      data.machineryType = formData.machineryType;
-      data.code = formData.code
+      baseData.machineryType = formData.machineryType;
+      baseData.code = formData.code
         ? `${formData.code.value} - ${formData.code.label}`
         : "";
     }
 
     try {
-      const result = await addIssue(data);
-      if (result.status === "success") {
-        setIsLoading(false);
-        setOpenDialog(true);
-        setTimeout(() => {
-          handleCloseDialog();
-        }, 2000);
-      } else {
-        throw new Error(result.message || "Failed to save data");
+      for (const stationNumber of formData.stationNumbers) {
+        const data = { ...baseData, stationNumber };
+        const result = await addIssue(data);
+        if (result.status !== "success") {
+          throw new Error(result.message || "Failed to save data");
+        }
       }
+      setIsLoading(false);
+      setOpenDialog(true);
+      setTimeout(() => {
+        handleCloseDialog();
+      }, 2000);
     } catch (error) {
       console.error("Error saving data:", error);
       setIsLoading(false);
