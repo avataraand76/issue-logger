@@ -37,7 +37,7 @@ const RemediationPage = () => {
 
   const filterPeopleList = (lineNumber) => {
     if (!lineNumber) {
-      setFilteredPeopleList([]);
+      setFilteredPeopleList(["CÔNG NHÂN TỰ XỬ LÝ"]);
       return;
     }
 
@@ -49,13 +49,13 @@ const RemediationPage = () => {
         person.includes("TỔ TRƯỞNG TỔ 20.01")
       );
       workshopList = peopleList.workshop2;
-      filteredList = [...teamLeaders, ...workshopList];
+      filteredList = [...filteredList, ...teamLeaders, ...workshopList];
     } else if (lineNumber === "Line 20") {
       const teamLeaders = peopleList.teamLeaders.filter((person) =>
         person.includes("TỔ TRƯỞNG TỔ 20 -")
       );
       workshopList = peopleList.workshop2;
-      filteredList = [...teamLeaders, ...workshopList];
+      filteredList = [...filteredList, ...teamLeaders, ...workshopList];
     } else {
       const lineNum = parseInt(lineNumber.replace("Line ", ""));
 
@@ -84,8 +84,10 @@ const RemediationPage = () => {
             person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 2"))
       );
 
-      filteredList = [...teamLeaders, ...workshopList];
+      filteredList = [...filteredList, ...teamLeaders, ...workshopList];
     }
+
+    filteredList.splice(1, 0, "CÔNG NHÂN TỰ XỬ LÝ"); // chỉnh sửa thứ tự option "CÔNG NHÂN TỰ XỬ LÝ"
 
     setFilteredPeopleList(filteredList);
   };
