@@ -19,6 +19,7 @@ import peopleList from "../data/peopleList";
 import Header from "../components/Header";
 import { addIssue } from "../data/api";
 import AutofillPreventer from "../components/AutofillPreventer";
+import { format } from "date-fns";
 
 const ResponsiblePersonPage = () => {
   const { formData, updateFormData, resetFormData } = useFormContext();
@@ -90,16 +91,12 @@ const ResponsiblePersonPage = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const timestamp = new Date().toLocaleString("vi-VN", {
+    const timestamp = format(new Date(), "HH:mm MM/dd/yyyy", {
       timeZone: "Asia/Ho_Chi_Minh",
-      hour: "2-digit",
-      minute: "2-digit",
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
     });
 
     const baseData = {
+      action: "addIssue",
       submissionTime: timestamp,
       lineNumber: formData.lineNumber,
       scope: formData.scope,
@@ -111,6 +108,7 @@ const ResponsiblePersonPage = () => {
         formData.remediation === "Khác"
           ? `Khác - ${formData.otherRemediation}`
           : formData.remediation,
+      problemSolver: formData.problemSolver,
       responsiblePerson: formData.responsiblePerson,
     };
 
@@ -152,7 +150,7 @@ const ResponsiblePersonPage = () => {
       <Header />
       <Container maxWidth="sm">
         <Typography variant="h5" gutterBottom>
-          NGƯỜI CHỊU TRÁCH NHIỆM
+          NGƯỜI GHI NHẬN VẤN ĐỀ
         </Typography>
         <form onSubmit={handleSubmit} autoComplete="off">
           <AutofillPreventer />
@@ -161,7 +159,7 @@ const ResponsiblePersonPage = () => {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Chọn người chịu trách nhiệm"
+                label="Chọn người ghi nhận vấn đề"
                 variant="outlined"
                 fullWidth
                 margin="normal"

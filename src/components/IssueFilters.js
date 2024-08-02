@@ -63,7 +63,7 @@ const IssueFilters = ({
                   }}
                 />
               )}
-              inputFormat="dd/MM/yyyy"
+              inputFormat="MM/dd/yyyy"
             />
           </LocalizationProvider>
           <Button

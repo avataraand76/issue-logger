@@ -5,12 +5,12 @@ import {
   Typography,
   Button,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogContentText,
   CircularProgress,
   Box,
   Fade,
+  IconButton,
 } from "@mui/material";
 import Header from "../components/Header";
 import IssueFilters from "../components/IssueFilters";
@@ -18,25 +18,22 @@ import IssueDetails from "../components/IssueDetails";
 import { useNavigate } from "react-router-dom";
 import { format, parse, isValid } from "date-fns";
 import LoadingAnimation from "../components/LoadingAnimation";
-import { Snackbar, Alert } from "@mui/material";
 import { fetchIssues, endIssue } from "../data/api";
 import AutofillPreventer from "../components/AutofillPreventer";
+import Pagination from "../components/Pagination";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 const IssueListPage = () => {
   const [issues, setIssues] = useState([]);
   const [filteredIssues, setFilteredIssues] = useState([]);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [selectedIssue, setSelectedIssue] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDate, setFilterDate] = useState(null);
   const [expandedIssue, setExpandedIssue] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [loadingEnd, setLoadingEnd] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [issuesPerPage] = useState(20);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,19 +48,9 @@ const IssueListPage = () => {
         setIssues(data.filter((issue) => !issue.endTime));
       } else {
         console.error("Received data is not an array:", data);
-        setSnackbar({
-          open: true,
-          message: "Dữ liệu không hợp lệ",
-          severity: "error",
-        });
       }
     } catch (error) {
       console.error("Error fetching issues:", error);
-      setSnackbar({
-        open: true,
-        message: "Không thể tải dữ liệu. Vui lòng thử lại sau.",
-        severity: "error",
-      });
     } finally {
       setLoading(false);
     }
@@ -85,16 +72,16 @@ const IssueListPage = () => {
     }
 
     if (filterDate) {
-      const formattedFilterDate = format(filterDate, "dd/MM/yyyy");
+      const formattedFilterDate = format(filterDate, "MM/dd/yyyy");
       filtered = filtered.filter((issue) => {
         const issueDate = parse(
           issue.submissionTime,
-          "HH:mm dd/MM/yyyy",
+          "HH:mm MM/dd/yyyy",
           new Date()
         );
         return (
           isValid(issueDate) &&
-          format(issueDate, "dd/MM/yyyy") === formattedFilterDate
+          format(issueDate, "MM/dd/yyyy") === formattedFilterDate
         );
       });
     }
@@ -106,47 +93,27 @@ const IssueListPage = () => {
     filterIssues();
   }, [issues, searchTerm, filterDate, filterIssues]);
 
-  const handleEndIssue = (issue) => {
-    setSelectedIssue(issue);
-    setOpenDialog(true);
-  };
-
-  const confirmEndIssue = async () => {
-    setLoadingEnd(true);
+  const handleEndIssue = async (issue) => {
+    setIsLoading(true);
     try {
-      const endTime = new Date().toLocaleString("vi-VN", {
+      const endTime = format(new Date(), "HH:mm MM/dd/yyyy", {
         timeZone: "Asia/Ho_Chi_Minh",
-        hour: "2-digit",
-        minute: "2-digit",
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
       });
 
-      const result = await endIssue(selectedIssue.id, endTime);
+      const result = await endIssue(issue.id, endTime);
       if (result.status === "success") {
-        setIssues(issues.filter((issue) => issue.id !== selectedIssue.id));
-        setOpenDialog(false);
-        setSnackbar({
-          open: true,
-          message: "Cập nhật thành công!",
-          severity: "success",
-        });
+        setIssues(issues.filter((i) => i.id !== issue.id));
+        setShowSuccess(true);
         setTimeout(() => {
-          setSnackbar((prev) => ({ ...prev, open: false }));
+          setShowSuccess(false);
+          setIsLoading(false);
         }, 2000);
       } else {
         throw new Error(result.message || "Failed to update end time");
       }
     } catch (error) {
       console.error("Error ending issue:", error);
-      setSnackbar({
-        open: true,
-        message: "Cập nhật thất bại!",
-        severity: "error",
-      });
-    } finally {
-      setLoadingEnd(false);
+      setIsLoading(false);
     }
   };
 
@@ -158,12 +125,14 @@ const IssueListPage = () => {
     setExpandedIssue(expandedIssue === id ? null : id);
   };
 
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setSnackbar({ ...snackbar, open: false });
-  };
+  const indexOfLastIssue = currentPage * issuesPerPage;
+  const indexOfFirstIssue = indexOfLastIssue - issuesPerPage;
+  const currentIssues = filteredIssues.slice(
+    indexOfFirstIssue,
+    indexOfLastIssue
+  );
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <>
@@ -190,10 +159,18 @@ const IssueListPage = () => {
               filterDate={filterDate}
               setFilterDate={setFilterDate}
             />
+            <Box mt={2} mb={2}>
+              <Pagination
+                issuesPerPage={issuesPerPage}
+                totalIssues={filteredIssues.length}
+                paginate={paginate}
+                currentPage={currentPage}
+              />
+            </Box>
             <Fade in={!loading} timeout={1000}>
               <Box>
                 <IssueDetails
-                  filteredIssues={filteredIssues}
+                  filteredIssues={currentIssues}
                   expandedIssue={expandedIssue}
                   handleExpand={handleExpand}
                   handleEndIssue={handleEndIssue}
@@ -203,43 +180,53 @@ const IssueListPage = () => {
           </>
         )}
       </Container>
+
+      {(isLoading || showSuccess) && <div className="overlay" />}
+
       <Dialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        disableBackdropClick={loadingEnd}
-        disableEscapeKeyDown={loadingEnd}
+        open={isLoading && !showSuccess}
+        PaperProps={{
+          style: {
+            backgroundColor: "transparent",
+            boxShadow: "none",
+            overflow: "hidden",
+          },
+        }}
       >
-        <DialogContent>
-          <DialogContentText>
-            Bạn có chắc chắn muốn kết thúc vấn đề này?
+        <DialogContent style={{ textAlign: "center", padding: "40px" }}>
+          <CircularProgress size={60} />
+          <DialogContentText style={{ marginTop: "20px", color: "#fff" }}>
+            Đang ghi dữ liệu...
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDialog(false)} disabled={loadingEnd}>
-            Hủy
-          </Button>
-          <Button
-            onClick={confirmEndIssue}
-            color="primary"
-            disabled={loadingEnd}
-          >
-            {loadingEnd ? <CircularProgress size={24} /> : "Xác nhận"}
-          </Button>
-        </DialogActions>
       </Dialog>
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={2000}
-        onClose={handleCloseSnackbar}
+
+      <Dialog
+        open={showSuccess}
+        PaperProps={{
+          style: {
+            backgroundColor: "rgba(255, 255, 255, 0.9)",
+            boxShadow: "none",
+            overflow: "hidden",
+          },
+        }}
       >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+        <DialogContent style={{ textAlign: "center", padding: "40px" }}>
+          <IconButton
+            color="primary"
+            style={{
+              backgroundColor: "rgba(76, 175, 80, 0.1)",
+              padding: "20px",
+              marginBottom: "20px",
+            }}
+          >
+            <CheckCircleOutlineIcon style={{ fontSize: 60 }} />
+          </IconButton>
+          <DialogContentText style={{ fontSize: "1.2rem" }}>
+            Ghi nhận dữ liệu thành công!
+          </DialogContentText>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

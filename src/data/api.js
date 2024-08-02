@@ -1,7 +1,7 @@
 // src/data/api.js
 
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbwzn1b7Z9pw_qOfI3Fo_6kg2DAr1YytU0RrlKI5CoNN09dz5ddtRfyTK8nlgU2NGR9EhA/exec";
+  "https://script.google.com/macros/s/AKfycbyWe4-43d2-NYhWHOARubzefrzWDRn_3bg8I_V3n7kP13WyP1coUEhP8Hy0HMyEae24eg/exec"; // deploy lại app script thì đổi đây
 
 export const fetchIssues = async () => {
   try {
