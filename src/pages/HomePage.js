@@ -1,4 +1,3 @@
-// src/pages/HomePage.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Button, Box } from "@mui/material";
@@ -27,6 +26,10 @@ const HomePage = () => {
         const issues = await fetchIssues();
         const leftIssues = issues.filter((issue) => !issue.endTime);
         setLeftIssuesCount(leftIssues.length);
+
+        if (leftIssues.length !== leftIssuesCount) {
+          await sendNotification(leftIssues.length);
+        }
       } catch (error) {
         console.error("Error fetching left issues:", error);
       }
@@ -34,10 +37,10 @@ const HomePage = () => {
 
     fetchLeftIssuesCount();
 
-    const intervalId = setInterval(fetchLeftIssuesCount, 1000); // Cập nhật mỗi ... giây
+    const intervalId = setInterval(fetchLeftIssuesCount, 60000); // Update every minute
 
-    return () => clearInterval(intervalId); // Xóa interval khi component unmount
-  }, []);
+    return () => clearInterval(intervalId);
+  }, [leftIssuesCount]);
 
   const handleReportIssue = () => {
     navigate("/report-issue");
@@ -46,6 +49,64 @@ const HomePage = () => {
   const handleIssueList = () => {
     navigate("/issue-list");
   };
+
+  const requestNotificationPermission = async () => {
+    if ("Notification" in window) {
+      try {
+        const permission = await Notification.requestPermission();
+        console.log("Notification permission:", permission);
+        return permission;
+      } catch (error) {
+        console.error("Error requesting notification permission:", error);
+        return "denied";
+      }
+    }
+    return "unsupported";
+  };
+
+  const sendNotification = async (count) => {
+    const permission = await requestNotificationPermission();
+    if (permission === "granted") {
+      if ("serviceWorker" in navigator) {
+        try {
+          const registration = await navigator.serviceWorker.ready;
+          await registration.showNotification("Issue Update", {
+            body: `Có ${count} vấn đề downtime chưa được xử lý!`,
+            icon: "logo192.png",
+            badge: "logo192.png",
+          });
+        } catch (error) {
+          console.error("Error showing notification:", error);
+        }
+      }
+    }
+  };
+
+  const sendTestNotification = async () => {
+    const permission = await requestNotificationPermission();
+    if (permission === "granted") {
+      if ("serviceWorker" in navigator && "PushManager" in window) {
+        try {
+          const registration = await navigator.serviceWorker.ready;
+          await registration.showNotification("Test Notification", {
+            body: "This is a test notification",
+            icon: "logo192.png",
+            badge: "logo192.png",
+          });
+        } catch (error) {
+          console.error("Error showing notification:", error);
+        }
+      }
+    } else {
+      console.log("Notification permission not granted");
+      // Optionally, inform the user that they need to grant permission
+      alert("Please grant notification permission to receive updates.");
+    }
+  };
+
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
 
   return (
     <Box display="flex" flexDirection="column" height="100vh" overflow="hidden">
@@ -79,6 +140,15 @@ const HomePage = () => {
             sx={{ mb: 3 }}
           >
             DANH SÁCH VẤN ĐỀ DOWNTIME
+          </AnimatedButton>
+          <AnimatedButton
+            variant="contained"
+            color="info"
+            fullWidth
+            onClick={sendTestNotification}
+            sx={{ mb: 3 }}
+          >
+            GỬI THÔNG BÁO TEST
           </AnimatedButton>
           <Box height="60.8px">
             <LeftIssuesNotification leftIssuesCount={leftIssuesCount} />
