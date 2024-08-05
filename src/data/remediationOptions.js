@@ -20,6 +20,8 @@ const remediationOptions = {
     "Hướng dẫn và yêu cầu kiểm tra chất lượng tại nguồn",
     "Thiết lập máy trước khi chuyển đổi",
     "Đào tạo, hướng dẫn cho công nhân",
+    "Chờ công đoạn trước",
+    "Sửa hàng lỗi/hư",
     "Khác",
   ],
   "Nguyên phụ liệu": [

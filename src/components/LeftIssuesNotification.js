@@ -90,7 +90,7 @@ const LeftIssuesNotification = ({ leftIssuesCount }) => {
     <NotificationBanner shouldZoomOut={shouldZoomOut}>
       <WarningIcon />
       <AnimatedText variant="body1">
-        {`Có ${leftIssuesCount} vấn đề downtime chưa hoàn thành !!!`}
+        {`Có ${leftIssuesCount} vấn đề downtime chưa được xử lý !!!`}
       </AnimatedText>
     </NotificationBanner>
   );

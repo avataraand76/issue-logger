@@ -1,4 +1,4 @@
-// src/components/IssueList.js
+// src/components/IssueDetails.js
 import React from "react";
 import {
   List,
@@ -9,6 +9,12 @@ import {
   Typography,
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
+import { format, parse } from "date-fns";
+
+const displayDate = (dateString) => {
+  const date = parse(dateString, "HH:mm MM/dd/yyyy", new Date());
+  return format(date, "HH:mm dd/MM/yyyy");
+};
 
 const IssueDetails = ({
   filteredIssues,
@@ -31,7 +37,9 @@ const IssueDetails = ({
           >
             <ListItemText
               primary={`${issue.lineNumber} - Trạm ${issue.stationNumber} - ${issue.scope} - ${issue.issue}`}
-              secondary={`Thời gian bắt đầu: ${issue.submissionTime}`}
+              secondary={`Thời gian bắt đầu: ${displayDate(
+                issue.submissionTime
+              )}`}
             />
             {expandedIssue === issue.id ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
@@ -72,10 +80,13 @@ const IssueDetails = ({
                         Vấn đề: {issue.issue}
                       </Typography>
                       <Typography component="span" display="block">
-                        Thời gian bắt đầu: {issue.submissionTime}
+                        Thời gian bắt đầu: {displayDate(issue.submissionTime)}
                       </Typography>
                       <Typography component="span" display="block">
-                        Thời gian kết thúc: {issue.endTime || "Chưa kết thúc"}
+                        Thời gian kết thúc:{" "}
+                        {issue.endTime
+                          ? displayDate(issue.endTime)
+                          : "Chưa kết thúc"}
                       </Typography>
                       <Typography component="span" display="block">
                         Hành động khắc phục: {issue.remediation || "Chưa có"}
