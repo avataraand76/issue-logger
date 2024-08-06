@@ -15,6 +15,10 @@ const AnimatedButton = styled(Button)(({ theme }) => ({
     transform: "scale(1.05)",
     boxShadow: "0 4px 20px rgba(0, 0, 0, 0.25)",
   },
+  [theme.breakpoints.down(340)]: {
+    fontSize: "0.9rem",
+    padding: "10px 0",
+  },
 }));
 
 const HomePage = () => {
@@ -59,6 +63,7 @@ const HomePage = () => {
           justifyContent: "center",
           py: 2,
           paddingBottom: "300px",
+          px: { xs: 1, sm: 2 },
         }}
       >
         <Box>

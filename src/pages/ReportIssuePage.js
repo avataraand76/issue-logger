@@ -9,6 +9,7 @@ import {
   Autocomplete,
   Grid,
   Chip,
+  Box,
 } from "@mui/material";
 import { useFormContext } from "../context/FormContext";
 import Header from "../components/Header";
@@ -101,7 +102,7 @@ const ReportIssuePage = () => {
     <>
       <Header />
       <Container maxWidth="sm">
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h5" gutterBottom align="center">
           GHI NHẬN VẤN ĐỀ DOWNTIME
         </Typography>
         <form onSubmit={(e) => e.preventDefault()} autoComplete="off">
@@ -160,26 +161,27 @@ const ReportIssuePage = () => {
               />
             )}
           />
-          <div style={{ marginTop: 10, marginBottom: 10 }}>
+          <Box sx={{ mt: 1, mb: 2 }}>
             {selectedStations.map((station) => (
               <Chip
                 key={station}
                 label={station}
                 onDelete={handleStationDelete(station)}
-                style={{ margin: 2 }}
+                sx={{ m: 0.5 }}
               />
             ))}
-          </div>
+          </Box>
           <Typography
             variant="subtitle1"
             gutterBottom
-            style={{ marginTop: "20px" }}
+            align="center"
+            sx={{ mt: 3, mb: 2 }}
           >
             Chọn phạm vi vấn đề:
           </Typography>
           <Grid container spacing={2}>
             {scopes.map((scope) => (
-              <Grid item xs={6} key={scope.value}>
+              <Grid item xs={12} sm={6} key={scope.value}>
                 <Button
                   variant="contained"
                   color="primary"
@@ -188,6 +190,7 @@ const ReportIssuePage = () => {
                   disabled={
                     !formData.lineNumber || selectedStations.length === 0
                   }
+                  sx={{ py: 1.5, fontSize: { xs: "0.8rem", sm: "0.9rem" } }}
                 >
                   {scope.label}
                 </Button>
@@ -199,7 +202,7 @@ const ReportIssuePage = () => {
             color="secondary"
             fullWidth
             onClick={() => navigate(-1)}
-            style={{ marginTop: "20px" }}
+            sx={{ mt: 3, py: 1.5, fontSize: { xs: "0.8rem", sm: "0.9rem" } }}
           >
             Back
           </Button>

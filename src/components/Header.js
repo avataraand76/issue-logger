@@ -1,7 +1,8 @@
 // src/components/Header.js
 import React from "react";
-import { AppBar, Toolbar, Typography, Box, Container } from "@mui/material";
+import { AppBar, Toolbar, Box, Container } from "@mui/material";
 import { styled } from "@mui/system";
+import { useTheme } from "@mui/material/styles";
 import logo from "../assets/logo2.png";
 
 const CustomAppBar = styled(AppBar)(({ theme }) => ({
@@ -11,9 +12,27 @@ const CustomAppBar = styled(AppBar)(({ theme }) => ({
   padding: "0 16px",
   position: "relative",
   marginBottom: "30px",
+  [theme.breakpoints.down(340)]: {
+    padding: "0 8px",
+    marginBottom: "20px",
+  },
+}));
+
+const CompanyName = styled("div")(({ theme }) => ({
+  color: "black",
+  textAlign: "center",
+  fontWeight: "bold",
+  fontSize: "1.2rem",
+  display: "flex",
+  flexDirection: "column",
+  [theme.breakpoints.down(340)]: {
+    fontSize: "1rem",
+  },
 }));
 
 const Header = () => {
+  const theme = useTheme();
+
   return (
     <CustomAppBar position="static">
       <Container maxWidth="md">
@@ -27,20 +46,19 @@ const Header = () => {
             <img
               src={logo}
               alt="Company Logo"
-              style={{ marginRight: "16px", height: "50px" }}
-            />
-            <Typography
-              variant="subtitle1"
-              component="div"
-              sx={{
-                color: "black",
-                textAlign: "center",
-                fontWeight: "bold",
-                fontSize: "1.2rem",
+              style={{
+                marginRight: "16px",
+                height: "50px",
+                [theme.breakpoints.down(340)]: {
+                  height: "40px",
+                  marginRight: "8px",
+                },
               }}
-            >
-              CÔNG TY TNHH MAY VIỆT LONG HƯNG
-            </Typography>
+            />
+            <CompanyName>
+              <span style={{ whiteSpace: "nowrap" }}>CÔNG TY TNHH MAY</span>
+              <span style={{ whiteSpace: "nowrap" }}>VIỆT LONG HƯNG</span>
+            </CompanyName>
           </Box>
         </Toolbar>
       </Container>

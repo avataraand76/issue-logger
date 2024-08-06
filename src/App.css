@@ -69,3 +69,23 @@
     margin-bottom: 10px;
   }
 }
+
+@media screen and (max-width: 340px) {
+  .MuiContainer-root {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .MuiTypography-root {
+    font-size: 1rem;
+  }
+
+  .MuiButton-root {
+    font-size: 0.9rem;
+    padding: 10px 0;
+  }
+
+  .MuiToolbar-root {
+    min-height: 56px;
+  }
+}
