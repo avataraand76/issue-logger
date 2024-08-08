@@ -1,5 +1,5 @@
 // src/pages/ReportIssuePage.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -10,16 +10,29 @@ import {
   Grid,
   Chip,
   Box,
+  Dialog,
+  DialogContent,
+  DialogContentText,
+  IconButton,
+  CircularProgress,
 } from "@mui/material";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { useFormContext } from "../context/FormContext";
 import Header from "../components/Header";
 import AutofillPreventer from "../components/AutofillPreventer";
+import peopleList from "../data/peopleList";
+import { addIssue } from "../data/api";
+import { format } from "date-fns";
 
 const ReportIssuePage = () => {
-  const { formData, updateFormData } = useFormContext();
+  const { formData, updateFormData, resetFormData } = useFormContext();
   const navigate = useNavigate();
   const [selectedStations, setSelectedStations] = useState([]);
   const [stationInput, setStationInput] = useState({ value: "", error: "" });
+  const [filteredPeopleList, setFilteredPeopleList] = useState([]);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   const lineNumbers = [
     ...Array.from({ length: 12 }, (_, i) => ({
@@ -55,27 +68,14 @@ const ReportIssuePage = () => {
 
   const handleScopeSelection = (selectedScope) => {
     updateFormData({ scope: selectedScope, stationNumbers: selectedStations });
+
     if (!formData.lineNumber || selectedStations.length === 0) return;
 
-    switch (selectedScope) {
-      case "Máy móc":
-        navigate("/machinery");
-        break;
-      case "Con người":
-        navigate("/people");
-        break;
-      case "Nguyên phụ liệu":
-        navigate("/materials");
-        break;
-      case "Phương pháp":
-        navigate("/method");
-        break;
-      // case "Khác":
-      //   navigate("/other");
-      //   break;
-      default:
-        break;
-    }
+    // Filter the people list based on the selected line number
+    filterPeopleList(formData.lineNumber);
+
+    // Open the dialog to select the responsible person
+    setOpenDialog(true);
   };
 
   const handleStationAdd = (event, newValue) => {
@@ -97,6 +97,115 @@ const ReportIssuePage = () => {
       selectedStations.filter((station) => station !== stationToDelete)
     );
   };
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+
+    try {
+      for (const stationNumber of formData.stationNumbers) {
+        const data = {
+          action: "addIssue",
+          submissionTime: format(new Date(), "HH:mm MM/dd/yyyy", {
+            timeZone: "Asia/Ho_Chi_Minh",
+          }),
+          lineNumber: formData.lineNumber,
+          scope: formData.scope,
+          responsiblePerson: formData.responsiblePerson,
+          stationNumber,
+        };
+        const result = await addIssue(data);
+        if (result.status !== "success") {
+          throw new Error(result.message || "Failed to save data");
+        }
+      }
+      setIsLoading(false);
+      setShowSuccessDialog(true);
+      setTimeout(() => {
+        handleCloseDialog();
+      }, 2000);
+    } catch (error) {
+      console.error("Error saving data:", error);
+      setIsLoading(false);
+      // Handle error here
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    resetFormData();
+    navigate("/");
+  };
+
+  const filterPeopleList = (lineNumber) => {
+    if (!lineNumber) {
+      setFilteredPeopleList([]);
+      return;
+    }
+
+    let filteredList = [];
+    let workshopList = [];
+
+    if (lineNumber === "Line 20.01") {
+      const teamLeaders = peopleList.teamLeaders.filter((person) =>
+        person.includes("TỔ TRƯỞNG TỔ 20.01")
+      );
+      workshopList = peopleList.workshop2;
+      filteredList = [...teamLeaders, ...workshopList];
+    } else if (lineNumber === "Line 20") {
+      const teamLeaders = peopleList.teamLeaders.filter((person) =>
+        person.includes("TỔ TRƯỞNG TỔ 20 -")
+      );
+      workshopList = peopleList.workshop2;
+      filteredList = [...teamLeaders, ...workshopList];
+    } else {
+      const lineNum = parseInt(lineNumber.replace("Line ", ""));
+
+      if (lineNum >= 1 && lineNum <= 10) {
+        workshopList = peopleList.workshop1;
+      } else if (lineNum >= 11 && lineNum <= 20) {
+        workshopList = peopleList.workshop2;
+      } else if (lineNum >= 21 && lineNum <= 30) {
+        workshopList = peopleList.workshop3;
+      } else if (
+        (lineNum >= 31 && lineNum <= 40) ||
+        lineNumber === "Tổ hoàn thành 1 - xưởng 4" ||
+        lineNumber === "Tổ hoàn thành 2 - xưởng 4"
+      ) {
+        workshopList = peopleList.workshop4;
+      }
+
+      const teamLeaders = peopleList.teamLeaders.filter(
+        (person) =>
+          person.includes(
+            `TỔ TRƯỞNG TỔ ${lineNum.toString().padStart(2, "0")}`
+          ) ||
+          (lineNumber === "Tổ hoàn thành 1 - xưởng 4" &&
+            person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 1")) ||
+          (lineNumber === "Tổ hoàn thành 2 - xưởng 4" &&
+            person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 2"))
+      );
+
+      filteredList = [...teamLeaders, ...workshopList];
+    }
+
+    setFilteredPeopleList(filteredList);
+  };
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        entry.target.dispatchEvent(new Event("resize", { bubbles: true }));
+      }
+    });
+
+    // Observe the entire document
+    resizeObserver.observe(document.body);
+
+    // Cleanup function to disconnect the ResizeObserver when the component is unmounted
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   return (
     <>
@@ -207,6 +316,112 @@ const ReportIssuePage = () => {
             Back
           </Button>
         </form>
+        <Dialog
+          open={openDialog}
+          onClose={() => setOpenDialog(false)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          PaperProps={{
+            style: {
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              boxShadow: "none",
+              overflow: "hidden",
+              width: "100%",
+            },
+          }}
+        >
+          <DialogContent style={{ textAlign: "center", padding: "40px" }}>
+            <Typography variant="h5" gutterBottom>
+              NGƯỜI GHI NHẬN VẤN ĐỀ
+            </Typography>
+            <Autocomplete
+              options={filteredPeopleList}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Chọn người ghi nhận vấn đề"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  multiline
+                  InputProps={{
+                    ...params.InputProps,
+                    autoComplete: "new-password",
+                    form: {
+                      autoComplete: "off",
+                    },
+                  }}
+                />
+              )}
+              value={formData.responsiblePerson}
+              onChange={(event, newValue) => {
+                updateFormData({ responsiblePerson: newValue });
+              }}
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              disabled={!formData.responsiblePerson || isLoading}
+              onClick={handleSubmit}
+            >
+              Xác nhận
+            </Button>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog
+          open={isLoading}
+          PaperProps={{
+            style: {
+              backgroundColor: "transparent",
+              boxShadow: "none",
+              overflow: "hidden",
+            },
+          }}
+        >
+          <DialogContent style={{ textAlign: "center", padding: "40px" }}>
+            <CircularProgress size={60} />
+            <DialogContentText style={{ marginTop: "20px", color: "#fff" }}>
+              Đang ghi dữ liệu...
+            </DialogContentText>
+          </DialogContent>
+        </Dialog>
+
+        {(openDialog || isLoading) && <div className="overlay" />}
+        <Dialog
+          open={showSuccessDialog}
+          onClose={handleCloseDialog}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          PaperProps={{
+            style: {
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              boxShadow: "none",
+              overflow: "hidden",
+            },
+          }}
+        >
+          <DialogContent style={{ textAlign: "center", padding: "40px" }}>
+            <IconButton
+              color="primary"
+              style={{
+                backgroundColor: "rgba(76, 175, 80, 0.1)",
+                padding: "20px",
+                marginBottom: "20px",
+              }}
+            >
+              <CheckCircleOutlineIcon style={{ fontSize: 60 }} />
+            </IconButton>
+            <DialogContentText
+              id="alert-dialog-description"
+              style={{ fontSize: "1.2rem" }}
+            >
+              Ghi nhận dữ liệu thành công!
+            </DialogContentText>
+          </DialogContent>
+        </Dialog>
       </Container>
     </>
   );
