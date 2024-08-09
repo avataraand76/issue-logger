@@ -36,7 +36,7 @@ const IssueDetails = ({
             }}
           >
             <ListItemText
-              primary={`${issue.lineNumber} - Trạm ${issue.stationNumber} - ${issue.scope} - ${issue.issue}`}
+              primary={`${issue.lineNumber} - Trạm ${issue.stationNumber} - Vấn đề về: ${issue.scope} - Người ghi nhận: ${issue.responsiblePerson}`}
               secondary={`Thời gian bắt đầu: ${displayDate(
                 issue.submissionTime
               )}`}
@@ -89,7 +89,7 @@ const IssueDetails = ({
                           : "Chưa kết thúc"}
                       </Typography>
                       <Typography component="span" display="block">
-                        Hành động khắc phục: {issue.remediation || "Chưa có"}
+                        Phương án giải quyết: {issue.remediation || "Chưa có"}
                       </Typography>
                       <Typography component="span" display="block">
                         Người chịu trách nhiệm:{" "}
