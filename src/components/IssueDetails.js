@@ -36,7 +36,7 @@ const IssueDetails = ({
             }}
           >
             <ListItemText
-              primary={`${issue.lineNumber} - Trạm ${issue.stationNumber} - Vấn đề về: ${issue.scope} - Người ghi nhận: ${issue.responsiblePerson}`}
+              primary={`${issue.lineNumber} - Trạm ${issue.stationNumber} - Vấn đề: ${issue.scope} - Người ghi nhận: ${issue.responsiblePerson}`}
               secondary={`Thời gian bắt đầu: ${displayDate(
                 issue.submissionTime
               )}`}
@@ -77,7 +77,7 @@ const IssueDetails = ({
                         </>
                       )}
                       <Typography component="span" display="block">
-                        Vấn đề: {issue.issue}
+                        Mô tả vấn đề: {issue.issue || "Chưa xác định"}
                       </Typography>
                       <Typography component="span" display="block">
                         Thời gian bắt đầu: {displayDate(issue.submissionTime)}

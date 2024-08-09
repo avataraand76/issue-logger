@@ -11,12 +11,15 @@ import {
   Box,
   Fade,
   IconButton,
+  TextField,
+  DialogActions,
+  DialogTitle,
 } from "@mui/material";
 import Header from "../components/Header";
 import IssueFilters from "../components/IssueFilters";
 import IssueDetails from "../components/IssueDetails";
 import { useNavigate } from "react-router-dom";
-import { format, parse, isValid } from "date-fns";
+import { format, parse, isValid, differenceInMinutes } from "date-fns";
 import LoadingAnimation from "../components/LoadingAnimation";
 import { fetchIssues, endIssue } from "../data/api";
 import AutofillPreventer from "../components/AutofillPreventer";
@@ -35,6 +38,13 @@ const IssueListPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
+  const [openEndIssueDialog, setOpenEndIssueDialog] = useState(false);
+  const [selectedIssue, setSelectedIssue] = useState(null);
+  const [issueDescription, setIssueDescription] = useState("");
+  const [remediation, setRemediation] = useState("");
+  const [responsiblePerson, setResponsiblePerson] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [downtimeMinutes, setDowntimeMinutes] = useState(0);
 
   useEffect(() => {
     fetchIssuesData();
@@ -93,17 +103,48 @@ const IssueListPage = () => {
     filterIssues();
   }, [issues, searchTerm, filterDate, filterIssues]);
 
-  const handleEndIssue = async (issue) => {
+  const handleEndIssue = (issue) => {
+    const currentTime = new Date();
+    const formattedEndTime = format(currentTime, "HH:mm MM/dd/yyyy", {
+      timeZone: "Asia/Ho_Chi_Minh",
+    });
+    const startTime = parse(
+      issue.submissionTime,
+      "HH:mm MM/dd/yyyy",
+      new Date()
+    );
+    const minutesDifference = differenceInMinutes(currentTime, startTime);
+
+    setSelectedIssue(issue);
+    setEndTime(formattedEndTime);
+    setDowntimeMinutes(minutesDifference);
+    setOpenEndIssueDialog(true);
+  };
+
+  const handleCloseEndIssueDialog = () => {
+    setOpenEndIssueDialog(false);
+    setSelectedIssue(null);
+    setIssueDescription("");
+    setRemediation("");
+    setResponsiblePerson("");
+    setEndTime("");
+    setDowntimeMinutes(0);
+  };
+
+  const handleConfirmEndIssue = async () => {
     setIsLoading(true);
     try {
-      const endTime = format(new Date(), "HH:mm MM/dd/yyyy", {
-        timeZone: "Asia/Ho_Chi_Minh",
+      const result = await endIssue(selectedIssue.id, endTime, {
+        issue: issueDescription,
+        remediation,
+        responsiblePerson,
+        downtimeMinutes,
       });
 
-      const result = await endIssue(issue.id, endTime);
       if (result.status === "success") {
-        setIssues(issues.filter((i) => i.id !== issue.id));
+        setIssues(issues.filter((i) => i.id !== selectedIssue.id));
         setShowSuccess(true);
+        handleCloseEndIssueDialog();
         setTimeout(() => {
           setShowSuccess(false);
           setIsLoading(false);
@@ -180,6 +221,70 @@ const IssueListPage = () => {
           </>
         )}
       </Container>
+
+      <Dialog open={openEndIssueDialog} onClose={handleCloseEndIssueDialog}>
+        <DialogTitle textAlign={"center"}>
+          KẾT THÚC THỜI GIAN DOWNTIME
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            margin="dense"
+            label="Thời gian kết thúc"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={endTime}
+            InputProps={{
+              readOnly: true,
+            }}
+          />
+          <TextField
+            margin="dense"
+            label="Số phút downtime"
+            type="number"
+            fullWidth
+            variant="outlined"
+            value={downtimeMinutes}
+            InputProps={{
+              readOnly: true,
+            }}
+          />
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Mô tả vấn đề"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={issueDescription}
+            onChange={(e) => setIssueDescription(e.target.value)}
+          />
+          <TextField
+            margin="dense"
+            label="Phương án giải quyết"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={remediation}
+            onChange={(e) => setRemediation(e.target.value)}
+          />
+          <TextField
+            margin="dense"
+            label="Người giải quyết vấn đề"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={responsiblePerson}
+            onChange={(e) => setResponsiblePerson(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          {/* <Button onClick={handleCloseEndIssueDialog}>Hủy</Button> */}
+          <Button onClick={handleConfirmEndIssue} fullWidth variant="contained">
+            Xác nhận
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {(isLoading || showSuccess) && <div className="overlay" />}
 
