@@ -1,7 +1,7 @@
 // src/data/api.js
 
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbyWe4-43d2-NYhWHOARubzefrzWDRn_3bg8I_V3n7kP13WyP1coUEhP8Hy0HMyEae24eg/exec"; // deploy lại app script thì đổi đây
+  "https://script.google.com/macros/s/AKfycbyr1yJQlfm7VuRKGa1Iqmp1FKCo6uPGrPAOiJx7B-khgL-Z5NPRcFuqY66iuzTZ5eldYw/exec"; // deploy lại app script thì đổi đây version 29 15/08/2024
 
 export const fetchIssues = async () => {
   try {
@@ -40,7 +40,7 @@ export const addIssue = async (issueData) => {
   }
 };
 
-export const endIssue = async (id, endTime) => {
+export const endIssue = async (id, endTime, additionalData) => {
   try {
     const response = await fetch(API_URL, {
       method: "POST",
@@ -48,6 +48,7 @@ export const endIssue = async (id, endTime) => {
         action: "endIssue",
         id,
         endTime,
+        ...additionalData,
       }),
     });
     if (!response.ok) {

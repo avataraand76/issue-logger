@@ -92,7 +92,11 @@ const IssueDetails = ({
                         Phương án giải quyết: {issue.remediation || "Chưa có"}
                       </Typography>
                       <Typography component="span" display="block">
-                        Người chịu trách nhiệm:{" "}
+                        Người giải quyết:{" "}
+                        {issue.problemSolver || "Chưa xác định"}
+                      </Typography>
+                      <Typography component="span" display="block">
+                        Người ghi nhận:{" "}
                         {issue.responsiblePerson || "Chưa xác định"}
                       </Typography>
                       {!issue.endTime && (

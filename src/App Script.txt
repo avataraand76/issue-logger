@@ -1,3 +1,4 @@
+// Code.gs version 29 15/08/2024
 function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = JSON.parse(e.postData.contents);
@@ -22,32 +23,19 @@ function doPost(e) {
     return ContentService.createTextOutput(JSON.stringify({status: 'success', action: 'addIssue'}))
       .setMimeType(ContentService.MimeType.JSON);
   } 
-  else if (data.action === "updateIssue") {
-    // Update issue
-    var row = data.id + 1; // +1 because the first row is the header
-    sheet.getRange(row, 5).setValue(data.machineryType || ""); // Column E
-    sheet.getRange(row, 6).setValue(data.machineryCode || ""); // Column F
-    sheet.getRange(row, 7).setValue(data.description); // Column G
-    sheet.getRange(row, 8).setValue(data.remediation); // Column H
-    sheet.getRange(row, 9).setValue(data.problemSolver); // Column I
-    sheet.getRange(row, 11).setValue(data.endTime); // Column K
-    sheet.getRange(row, 12).setValue(data.downtimeMinutes); // Column L
-
-    return ContentService.createTextOutput(JSON.stringify({status: 'success', action: 'updateIssue'}))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
   else if (data.action === "endIssue") {
-    // Update end time
+    // Update end time and additional fields
     var row = data.id + 1; // +1 because the first row is the header
     var startTime = sheet.getRange(row, 1).getValue(); // Get start time from column A
     var endTime = data.endTime;
 
     sheet.getRange(row, 11).setValue(endTime); // Update end time in column K
-
-    // Calculate downtime
-    var downtimeMinutes = calculateDowntime(startTime, endTime);
-
-    sheet.getRange(row, 12).setValue(downtimeMinutes); // Add downtime (minutes) to column L
+    sheet.getRange(row, 12).setValue(data.downtimeMinutes); // Add downtime (minutes) to column L
+    sheet.getRange(row, 5).setValue(data.machineryType || ""); // Update machinery type in column E
+    sheet.getRange(row, 6).setValue(data.machineryCode || ""); // Update machinery code in column F
+    sheet.getRange(row, 7).setValue(data.issue); // Update issue description in column G
+    sheet.getRange(row, 8).setValue(data.remediation); // Update remediation in column H
+    sheet.getRange(row, 9).setValue(data.problemSolver); // Update problem solver in column I
 
     return ContentService.createTextOutput(JSON.stringify({status: 'success', action: 'endIssue'}))
       .setMimeType(ContentService.MimeType.JSON);
@@ -85,8 +73,11 @@ function doGet() {
 }
 
 function calculateDowntime(startTime, endTime) {
-  var start = new Date(startTime.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$2/$1/$3"));
-  var end = new Date(endTime.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$2/$1/$3"));
+  var start = new Date(startTime);
+  var end = new Date(endTime);
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return "Invalid date";
+  }
   var diff = (end - start) / (1000 * 60); // Convert to minutes
-  return Math.round(diff);
+  return diff >= 0 ? Math.round(diff) : "Invalid time range";
 }

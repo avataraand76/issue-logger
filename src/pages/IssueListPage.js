@@ -14,6 +14,8 @@ import {
   TextField,
   DialogActions,
   DialogTitle,
+  Autocomplete,
+  MenuItem,
 } from "@mui/material";
 import Header from "../components/Header";
 import IssueFilters from "../components/IssueFilters";
@@ -25,6 +27,11 @@ import { fetchIssues, endIssue } from "../data/api";
 import AutofillPreventer from "../components/AutofillPreventer";
 import Pagination from "../components/Pagination";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import peopleList from "../data/peopleList";
+import issueOptions from "../data/issueOptions";
+import remediationOptions from "../data/remediationOptions";
+import machineryCodes from "../data/machineryCodes";
+import ClearIcon from "@mui/icons-material/Clear";
 
 const IssueListPage = () => {
   const [issues, setIssues] = useState([]);
@@ -45,6 +52,15 @@ const IssueListPage = () => {
   const [responsiblePerson, setResponsiblePerson] = useState("");
   const [endTime, setEndTime] = useState("");
   const [downtimeMinutes, setDowntimeMinutes] = useState(0);
+  const [filteredPeopleList, setFilteredPeopleList] = useState([]);
+  const [filteredIssueOptions, setFilteredIssueOptions] = useState([]);
+  const [otherIssue, setOtherIssue] = useState("");
+  const [currentRemediationOptions, setCurrentRemediationOptions] = useState(
+    []
+  );
+  const [otherRemediation, setOtherRemediation] = useState("");
+  const [machineryType, setMachineryType] = useState("");
+  const [machineryCode, setMachineryCode] = useState(null);
 
   useEffect(() => {
     fetchIssuesData();
@@ -77,7 +93,11 @@ const IssueListPage = () => {
             .toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
           issue.scope.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          issue.issue.toLowerCase().includes(searchTerm.toLowerCase())
+          issue.issue.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (issue.responsiblePerson &&
+            issue.responsiblePerson
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()))
       );
     }
 
@@ -102,6 +122,93 @@ const IssueListPage = () => {
   useEffect(() => {
     filterIssues();
   }, [issues, searchTerm, filterDate, filterIssues]);
+
+  const filterPeopleList = useCallback((lineNumber) => {
+    if (!lineNumber) {
+      setFilteredPeopleList(["CÔNG NHÂN TỰ XỬ LÝ"]);
+      return;
+    }
+
+    let filteredList = [];
+    let workshopList = [];
+
+    if (lineNumber === "Line 20.01") {
+      const teamLeaders = peopleList.teamLeaders.filter((person) =>
+        person.includes("TỔ TRƯỞNG TỔ 20.01")
+      );
+      workshopList = peopleList.workshop2;
+      filteredList = [...filteredList, ...teamLeaders, ...workshopList];
+    } else if (lineNumber === "Line 20") {
+      const teamLeaders = peopleList.teamLeaders.filter((person) =>
+        person.includes("TỔ TRƯỞNG TỔ 20 -")
+      );
+      workshopList = peopleList.workshop2;
+      filteredList = [...filteredList, ...teamLeaders, ...workshopList];
+    } else {
+      const lineNum = parseInt(lineNumber.replace("Line ", ""));
+
+      if (lineNum >= 1 && lineNum <= 10) {
+        workshopList = peopleList.workshop1;
+      } else if (lineNum >= 11 && lineNum <= 20) {
+        workshopList = peopleList.workshop2;
+      } else if (lineNum >= 21 && lineNum <= 30) {
+        workshopList = peopleList.workshop3;
+      } else if (
+        (lineNum >= 31 && lineNum <= 40) ||
+        lineNumber === "Tổ hoàn thành 1 - xưởng 4" ||
+        lineNumber === "Tổ hoàn thành 2 - xưởng 4"
+      ) {
+        workshopList = peopleList.workshop4;
+      }
+
+      const teamLeaders = peopleList.teamLeaders.filter(
+        (person) =>
+          person.includes(
+            `TỔ TRƯỞNG TỔ ${lineNum.toString().padStart(2, "0")}`
+          ) ||
+          (lineNumber === "Tổ hoàn thành 1 - xưởng 4" &&
+            person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 1")) ||
+          (lineNumber === "Tổ hoàn thành 2 - xưởng 4" &&
+            person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 2"))
+      );
+
+      filteredList = [...filteredList, ...teamLeaders, ...workshopList];
+    }
+
+    filteredList.push("CÔNG NHÂN TỰ XỬ LÝ");
+    setFilteredPeopleList(filteredList);
+  }, []);
+
+  const filterIssueOptions = useCallback((scope) => {
+    switch (scope) {
+      case "Máy móc":
+        setFilteredIssueOptions(issueOptions.machinery);
+        setCurrentRemediationOptions(remediationOptions.machinery || []);
+        break;
+      case "Nguyên phụ liệu":
+        setFilteredIssueOptions(issueOptions.materials);
+        setCurrentRemediationOptions(remediationOptions.materials || []);
+        break;
+      case "Phương pháp":
+        setFilteredIssueOptions(issueOptions.method);
+        setCurrentRemediationOptions(remediationOptions.method || []);
+        break;
+      case "Con người":
+        setFilteredIssueOptions(issueOptions.people);
+        setCurrentRemediationOptions(remediationOptions.people || []);
+        break;
+      default:
+        setFilteredIssueOptions([]);
+        setCurrentRemediationOptions([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (selectedIssue) {
+      filterPeopleList(selectedIssue.lineNumber);
+      filterIssueOptions(selectedIssue.scope);
+    }
+  }, [selectedIssue, filterPeopleList, filterIssueOptions]);
 
   const handleEndIssue = (issue) => {
     const currentTime = new Date();
@@ -129,16 +236,32 @@ const IssueListPage = () => {
     setResponsiblePerson("");
     setEndTime("");
     setDowntimeMinutes(0);
+    setOtherIssue("");
+    setOtherRemediation("");
+    setMachineryType("");
+    setMachineryCode(null);
   };
 
   const handleConfirmEndIssue = async () => {
     setIsLoading(true);
     try {
+      const finalIssueDescription =
+        issueDescription === "Khác" ? `Khác - ${otherIssue}` : issueDescription;
+      const finalRemediation =
+        remediation === "Khác" ? `Khác - ${otherRemediation}` : remediation;
       const result = await endIssue(selectedIssue.id, endTime, {
-        issue: issueDescription,
-        remediation,
-        responsiblePerson,
         downtimeMinutes,
+        machineryType: selectedIssue.scope === "Máy móc" ? machineryType : "",
+        machineryCode:
+          selectedIssue.scope === "Máy móc"
+            ? machineryCode
+              ? `${machineryCode.value} - ${machineryCode.label}`
+              : ""
+            : "",
+        issue: finalIssueDescription,
+        remediation: finalRemediation,
+        problemSolver: responsiblePerson,
+        responsiblePerson: selectedIssue.problemSolver, // Giữ nguyên người ghi nhận ban đầu
       });
 
       if (result.status === "success") {
@@ -174,6 +297,12 @@ const IssueListPage = () => {
   );
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  useEffect(() => {
+    if (selectedIssue) {
+      filterPeopleList(selectedIssue.lineNumber);
+    }
+  }, [selectedIssue, filterPeopleList]);
 
   return (
     <>
@@ -222,7 +351,12 @@ const IssueListPage = () => {
         )}
       </Container>
 
-      <Dialog open={openEndIssueDialog} onClose={handleCloseEndIssueDialog}>
+      <Dialog
+        open={openEndIssueDialog}
+        onClose={handleCloseEndIssueDialog}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogTitle textAlign={"center"}>
           KẾT THÚC THỜI GIAN DOWNTIME
         </DialogTitle>
@@ -249,33 +383,145 @@ const IssueListPage = () => {
               readOnly: true,
             }}
           />
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Mô tả vấn đề"
-            type="text"
-            fullWidth
-            variant="outlined"
+          {selectedIssue && selectedIssue.scope === "Máy móc" && (
+            <>
+              <TextField
+                select
+                label="Chọn loại thiết bị"
+                value={machineryType}
+                onChange={(e) => setMachineryType(e.target.value)}
+                variant="outlined"
+                fullWidth
+                margin="dense"
+              >
+                <MenuItem value="Thiết bị may">Thiết bị may</MenuItem>
+                <MenuItem value="Thiết bị chuyên dùng">
+                  Thiết bị chuyên dùng
+                </MenuItem>
+                <MenuItem value="Công cụ thiết bị">Công cụ thiết bị</MenuItem>
+              </TextField>
+              {machineryType && (
+                <Autocomplete
+                  value={machineryCode}
+                  options={machineryCodes[machineryType] || []}
+                  getOptionLabel={(option) =>
+                    `${option.value} - ${option.label}`
+                  }
+                  onChange={(e, newValue) => setMachineryCode(newValue)}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Mã thiết bị"
+                      variant="outlined"
+                      margin="dense"
+                      fullWidth
+                    />
+                  )}
+                  renderOption={(props, option) => (
+                    <li {...props}>{`${option.value} - ${option.label}`}</li>
+                  )}
+                />
+              )}
+            </>
+          )}
+          <Autocomplete
+            options={filteredIssueOptions}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                margin="dense"
+                label="Mô tả vấn đề"
+                fullWidth
+                variant="outlined"
+              />
+            )}
             value={issueDescription}
-            onChange={(e) => setIssueDescription(e.target.value)}
+            onChange={(event, newValue) => {
+              setIssueDescription(newValue);
+              if (newValue !== "Khác") {
+                // Reset otherIssue if not "Khác"
+                setOtherIssue("");
+              }
+            }}
           />
-          <TextField
-            margin="dense"
-            label="Phương án giải quyết"
-            type="text"
-            fullWidth
-            variant="outlined"
+          {issueDescription === "Khác" && (
+            <TextField
+              margin="dense"
+              label="Nhập vấn đề khác"
+              type="text"
+              fullWidth
+              variant="outlined"
+              value={otherIssue}
+              onChange={(e) => setOtherIssue(e.target.value)}
+              InputProps={{
+                endAdornment: (
+                  <IconButton onClick={() => setOtherIssue("")} edge="end">
+                    <ClearIcon />
+                  </IconButton>
+                ),
+              }}
+            />
+          )}
+          <Autocomplete
+            options={currentRemediationOptions}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                margin="dense"
+                label="Phương án giải quyết"
+                fullWidth
+                variant="outlined"
+              />
+            )}
             value={remediation}
-            onChange={(e) => setRemediation(e.target.value)}
+            onChange={(event, newValue) => {
+              setRemediation(newValue);
+              if (newValue !== "Khác") {
+                // Reset otherRemediation if not "Khác"
+                setOtherRemediation("");
+              }
+            }}
           />
-          <TextField
-            margin="dense"
-            label="Người giải quyết vấn đề"
-            type="text"
-            fullWidth
-            variant="outlined"
+          {remediation === "Khác" && (
+            <TextField
+              margin="dense"
+              label="Nhập phương án giải quyết khác"
+              type="text"
+              fullWidth
+              variant="outlined"
+              value={otherRemediation}
+              onChange={(e) => setOtherRemediation(e.target.value)}
+              InputProps={{
+                endAdornment: (
+                  <IconButton
+                    onClick={() => setOtherRemediation("")}
+                    edge="end"
+                  >
+                    <ClearIcon />
+                  </IconButton>
+                ),
+              }}
+            />
+          )}
+          <Autocomplete
+            options={filteredPeopleList}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                margin="dense"
+                label="Người giải quyết vấn đề"
+                fullWidth
+                variant="outlined"
+                multiline
+              />
+            )}
             value={responsiblePerson}
-            onChange={(e) => setResponsiblePerson(e.target.value)}
+            onChange={(event, newValue) => setResponsiblePerson(newValue)}
+            renderOption={(props, option) => (
+              <li {...props} style={{ whiteSpace: "normal" }}>
+                {option}
+              </li>
+            )}
           />
         </DialogContent>
         <DialogActions>

@@ -1,6 +1,6 @@
 // src/data/remediationOptions.js
 const remediationOptions = {
-  "Máy móc": [
+  machinery: [
     "Cơ điện sửa máy tại chỗ",
     "Đổi máy dự phòng",
     "Kỹ thuật điều chỉnh",
@@ -9,7 +9,7 @@ const remediationOptions = {
     "Thông tin cho quản lý",
     "Khác",
   ],
-  "Con người": [
+  people: [
     "Kỹ thuật hướng dẫn thao tác",
     "Kỹ thuật chỉnh cử, gá lắp",
     "Kỹ thuật thiết lập lại các thông số của máy",
@@ -24,14 +24,14 @@ const remediationOptions = {
     "Sửa hàng lỗi/hư",
     "Khác",
   ],
-  "Nguyên phụ liệu": [
+  materials: [
     "Thông tin đến quản lý các khu vực liên quan",
     "Cấp bổ sung",
     "Đổi lại NPL khác",
     "Điều tiết, hỗ trợ cho công đoạn",
     "Khác",
   ],
-  "Phương pháp": [
+  method: [
     "Điều chỉnh lại quy trình",
     "Bổ sung các quy trình",
     "Hướng dẫn chuẩn hoá thao tác",
