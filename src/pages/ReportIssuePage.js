@@ -20,9 +20,13 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { useFormContext } from "../context/FormContext";
 import Header from "../components/Header";
 import AutofillPreventer from "../components/AutofillPreventer";
-import peopleList from "../data/peopleList";
+import getPeopleList from "../data/peopleList";
 import { addIssue } from "../data/api";
 import { format } from "date-fns";
+import EngineeringIcon from "@mui/icons-material/Engineering";
+import PeopleIcon from "@mui/icons-material/People";
+import InventoryIcon from "@mui/icons-material/Inventory";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 const ReportIssuePage = () => {
   const { formData, updateFormData, resetFormData } = useFormContext();
@@ -33,6 +37,16 @@ const ReportIssuePage = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [peopleList, setPeopleList] = useState({});
+
+  useEffect(() => {
+    const fetchPeopleList = async () => {
+      const fetchedPeopleList = await getPeopleList();
+      setPeopleList(fetchedPeopleList);
+    };
+
+    fetchPeopleList();
+  }, []);
 
   const lineNumbers = [
     ...Array.from({ length: 12 }, (_, i) => ({
@@ -59,10 +73,30 @@ const ReportIssuePage = () => {
   ];
 
   const scopes = [
-    { value: "Máy móc", label: "Máy móc" },
-    { value: "Con người", label: "Con người" },
-    { value: "Nguyên phụ liệu", label: "Nguyên phụ liệu" },
-    { value: "Phương pháp", label: "Phương pháp" },
+    {
+      value: "Máy móc",
+      label: "Máy móc",
+      color: "error",
+      icon: <EngineeringIcon />,
+    },
+    {
+      value: "Con người",
+      label: "Con người",
+      color: "warning",
+      icon: <PeopleIcon />,
+    },
+    {
+      value: "Nguyên phụ liệu",
+      label: "Nguyên phụ liệu",
+      color: "primary",
+      icon: <InventoryIcon />,
+    },
+    {
+      value: "Phương pháp",
+      label: "Phương pháp",
+      color: "success",
+      icon: <SettingsIcon />,
+    },
     // { value: "Khác", label: "Khác" },
   ];
 
@@ -137,7 +171,7 @@ const ReportIssuePage = () => {
   };
 
   const filterPeopleList = (lineNumber) => {
-    if (!lineNumber) {
+    if (!lineNumber || Object.keys(peopleList).length === 0) {
       setFilteredPeopleList([]);
       return;
     }
@@ -293,14 +327,22 @@ const ReportIssuePage = () => {
               <Grid item xs={12} sm={6} key={scope.value}>
                 <Button
                   variant="contained"
-                  color="primary"
+                  color={scope.color}
                   fullWidth
                   onClick={() => handleScopeSelection(scope.value)}
                   disabled={
                     !formData.lineNumber || selectedStations.length === 0
                   }
-                  sx={{ py: 1.5, fontSize: { xs: "0.8rem", sm: "0.9rem" } }}
+                  sx={{
+                    py: 2,
+                    fontSize: { xs: "1rem", sm: "1.1rem" },
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
                 >
+                  {scope.icon}
                   {scope.label}
                 </Button>
               </Grid>
