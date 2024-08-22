@@ -27,7 +27,7 @@ import { fetchIssues, endIssue } from "../data/api";
 import AutofillPreventer from "../components/AutofillPreventer";
 import Pagination from "../components/Pagination";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import getPeopleList from "../data/peopleList";
+import peopleList from "../data/peopleList";
 import issueOptions from "../data/issueOptions";
 import solutionOptions from "../data/solutionOptions";
 import machineryCodes from "../data/machineryCodes";
@@ -59,21 +59,10 @@ const IssueListPage = () => {
   const [otherSolution, setOtherSolution] = useState("");
   const [machineryType, setMachineryType] = useState("");
   const [machineryCode, setMachineryCode] = useState(null);
-  const [peopleList, setPeopleList] = useState({});
 
   useEffect(() => {
     fetchIssuesData();
-    fetchPeopleList();
   }, []);
-
-  const fetchPeopleList = async () => {
-    try {
-      const fetchedPeopleList = await getPeopleList();
-      setPeopleList(fetchedPeopleList);
-    } catch (error) {
-      console.error("Error fetching people list:", error);
-    }
-  };
 
   const fetchIssuesData = async () => {
     setLoading(true);
@@ -132,64 +121,61 @@ const IssueListPage = () => {
     filterIssues();
   }, [issues, searchTerm, filterDate, filterIssues]);
 
-  const filterPeopleList = useCallback(
-    (lineNumber) => {
-      if (!lineNumber || Object.keys(peopleList).length === 0) {
-        setFilteredPeopleList(["CÔNG NHÂN TỰ XỬ LÝ"]);
-        return;
+  const filterPeopleList = useCallback((lineNumber) => {
+    if (!lineNumber) {
+      setFilteredPeopleList(["CÔNG NHÂN TỰ XỬ LÝ"]);
+      return;
+    }
+
+    let filteredList = [];
+    let workshopList = [];
+
+    if (lineNumber === "Line 20.01") {
+      const teamLeaders = peopleList.teamLeaders.filter((person) =>
+        person.includes("TỔ TRƯỞNG TỔ 20.01")
+      );
+      workshopList = peopleList.workshop2;
+      filteredList = [...filteredList, ...teamLeaders, ...workshopList];
+    } else if (lineNumber === "Line 20") {
+      const teamLeaders = peopleList.teamLeaders.filter((person) =>
+        person.includes("TỔ TRƯỞNG TỔ 20 -")
+      );
+      workshopList = peopleList.workshop2;
+      filteredList = [...filteredList, ...teamLeaders, ...workshopList];
+    } else {
+      const lineNum = parseInt(lineNumber.replace("Line ", ""));
+
+      if (lineNum >= 1 && lineNum <= 10) {
+        workshopList = peopleList.workshop1;
+      } else if (lineNum >= 11 && lineNum <= 20) {
+        workshopList = peopleList.workshop2;
+      } else if (lineNum >= 21 && lineNum <= 30) {
+        workshopList = peopleList.workshop3;
+      } else if (
+        (lineNum >= 31 && lineNum <= 40) ||
+        lineNumber === "Tổ hoàn thành 1 - xưởng 4" ||
+        lineNumber === "Tổ hoàn thành 2 - xưởng 4"
+      ) {
+        workshopList = peopleList.workshop4;
       }
 
-      let filteredList = [];
-      let workshopList = [];
+      const teamLeaders = peopleList.teamLeaders.filter(
+        (person) =>
+          person.includes(
+            `TỔ TRƯỞNG TỔ ${lineNum.toString().padStart(2, "0")}`
+          ) ||
+          (lineNumber === "Tổ hoàn thành 1 - xưởng 4" &&
+            person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 1")) ||
+          (lineNumber === "Tổ hoàn thành 2 - xưởng 4" &&
+            person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 2"))
+      );
 
-      if (lineNumber === "Line 20.01") {
-        const teamLeaders = peopleList.teamLeaders.filter((person) =>
-          person.includes("TỔ TRƯỞNG TỔ 20.01")
-        );
-        workshopList = peopleList.workshop2;
-        filteredList = [...filteredList, ...teamLeaders, ...workshopList];
-      } else if (lineNumber === "Line 20") {
-        const teamLeaders = peopleList.teamLeaders.filter((person) =>
-          person.includes("TỔ TRƯỞNG TỔ 20 -")
-        );
-        workshopList = peopleList.workshop2;
-        filteredList = [...filteredList, ...teamLeaders, ...workshopList];
-      } else {
-        const lineNum = parseInt(lineNumber.replace("Line ", ""));
+      filteredList = [...filteredList, ...teamLeaders, ...workshopList];
+    }
 
-        if (lineNum >= 1 && lineNum <= 10) {
-          workshopList = peopleList.workshop1;
-        } else if (lineNum >= 11 && lineNum <= 20) {
-          workshopList = peopleList.workshop2;
-        } else if (lineNum >= 21 && lineNum <= 30) {
-          workshopList = peopleList.workshop3;
-        } else if (
-          (lineNum >= 31 && lineNum <= 40) ||
-          lineNumber === "Tổ hoàn thành 1 - xưởng 4" ||
-          lineNumber === "Tổ hoàn thành 2 - xưởng 4"
-        ) {
-          workshopList = peopleList.workshop4;
-        }
-
-        const teamLeaders = peopleList.teamLeaders.filter(
-          (person) =>
-            person.includes(
-              `TỔ TRƯỞNG TỔ ${lineNum.toString().padStart(2, "0")}`
-            ) ||
-            (lineNumber === "Tổ hoàn thành 1 - xưởng 4" &&
-              person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 1")) ||
-            (lineNumber === "Tổ hoàn thành 2 - xưởng 4" &&
-              person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 2"))
-        );
-
-        filteredList = [...filteredList, ...teamLeaders, ...workshopList];
-      }
-
-      filteredList.push("CÔNG NHÂN TỰ XỬ LÝ");
-      setFilteredPeopleList(filteredList);
-    },
-    [peopleList]
-  );
+    filteredList.push("CÔNG NHÂN TỰ XỬ LÝ");
+    setFilteredPeopleList(filteredList);
+  }, []);
 
   const filterIssueOptions = useCallback((scope) => {
     switch (scope) {

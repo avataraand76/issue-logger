@@ -1,20 +1,109 @@
 // src/data/peopleList.js
+const peopleList = {
+  workshop1: [
+    "CƠ ĐIỆN XƯỞNG 1 - ĐẶNG MẠNH CƯỜNG",
+    "CƠ ĐIỆN XƯỞNG 1 - TRƯƠNG MAI HIẾU KIỆN",
+    "CƠ ĐIỆN XƯỞNG 1 - PHAN THÀNH DƯƠNG",
+    "CƠ ĐIỆN XƯỞNG 1 - VÕ TẤN VŨ",
+    "CƠ ĐIỆN XƯỞNG 1 - NGUYỄN THỊ KIM TUYÊN",
+    "CƠ ĐIỆN XƯỞNG 1 - VÕ VĂN LUẬN",
+    "KỸ THUẬT XƯỞNG 1 - HUỲNH THỊ KIM DUNG",
+    "KỸ THUẬT XƯỞNG 1 - NGUYỄN THỊ NGỌC HƯƠNG",
+    "KỸ THUẬT XƯỞNG 1 - NGUYỄN THỊ YẾN TRINH",
+    "KỸ THUẬT XƯỞNG 1 - LÊ THỊ MỸ DUYÊN",
+    "KỸ THUẬT XƯỞNG 1 - PHAN MINH THUẬN",
+    "KỸ THUẬT XƯỞNG 1 - HUỲNH ĐÌNH TUẤN",
+    "KỸ THUẬT XƯỞNG 1 - TRẦN THANH PHONG",
+    "KỸ THUẬT XƯỞNG 1 - LÊ THỊ NGỌC TRINH",
+    "KỸ THUẬT XƯỞNG 1 - LÊ LONG HỒ",
+  ],
+  workshop2: [
+    "CƠ ĐIỆN XƯỞNG 2 - NGUYỄN THỊ PHƯƠNG LAN",
+    "CƠ ĐIỆN XƯỞNG 2 - HUỲNH MINH LỘC",
+    "CƠ ĐIỆN XƯỞNG 2 - NGUYỄN THANH PHONG",
+    "CƠ ĐIỆN XƯỞNG 2 - ĐINH HÒA THUẬN",
+    "CƠ ĐIỆN XƯỞNG 2 - TRỪ TẤN LỘC",
+    "CƠ ĐIỆN XƯỞNG 2 - THÁI HỒNG MINH",
+    "CƠ ĐIỆN XƯỞNG 2 - LÊ NGUYỄN NGỌC SƠN",
+    "KỸ THUẬT XƯỞNG 2 - NGUYỄN THỊ KIM THOẠI",
+    "KỸ THUẬT XƯỞNG 2 - VÕ MINH TUẤN",
+    "KỸ THUẬT XƯỞNG 2 - HUỲNH THỊ THÙY TRANG",
+    "KỸ THUẬT XƯỞNG 2 - PHẠM THỊ KIM HOÀI",
+    "KỸ THUẬT XƯỞNG 2 - HUỲNH THỊ HẢI ÂU",
+    "KỸ THUẬT XƯỞNG 2 - NGUYỄN THỊ DIỄM HƯƠNG",
+  ],
+  workshop3: [
+    "CƠ ĐIỆN XƯỞNG 3 - LƯU TẤN TƯỜNG CHINH",
+    "CƠ ĐIỆN XƯỞNG 3 - NGUYỄN HỮU ĐỨC",
+    "CƠ ĐIỆN XƯỞNG 3 - ĐINH THUẬN HÒA",
+    "CƠ ĐIỆN XƯỞNG 3 - NGUYỄN HẢI ĐĂNG",
+    "CƠ ĐIỆN XƯỞNG 3 - TRƯƠNG MINH DANH",
+    "KỸ THUẬT XƯỞNG 3 - NGUYỄN THỊ CẨM TIÊN",
+    "KỸ THUẬT XƯỞNG 3 - PHẠM THỊ ANH ĐÀO",
+    "KỸ THUẬT XƯỞNG 3 - HUỲNH TRẦN HỒNG THỊNH",
+    "KỸ THUẬT XƯỞNG 3 - TĂNG THANH VỦ",
+    "KỸ THUẬT XƯỞNG 3 - ĐỖ THỊ NGỌC THI",
+  ],
+  workshop4: [
+    "CƠ ĐIỆN XƯỞNG 4 - DƯƠNG MINH NHÂN",
+    "CƠ ĐIỆN XƯỞNG 4 - HÀ THANH TƯỜNG",
+    "CƠ ĐIỆN XƯỞNG 4 - NGUYỄN TIẾN THỊNH",
+    "CƠ ĐIỆN XƯỞNG 4 - TRẦN HIỀN EM",
+    "CƠ ĐIỆN XƯỞNG 4 - LÊ MINH TÂN",
+    "CƠ ĐIỆN XƯỞNG 4 - NGUYỄN QUAN HUY",
+    "CƠ ĐIỆN XƯỞNG 4 - PHẠM VĂN LƯỢNG",
+    "CƠ ĐIỆN XƯỞNG 4 - HUỲNH PHƯƠNG VY",
+    "KỸ THUẬT XƯỞNG 4 - NGUYỄN NGỌC LAN",
+    "KỸ THUẬT XƯỞNG 4 - NGUYỄN MINH SANG",
+    "KỸ THUẬT XƯỞNG 4 - LÊ MINH DUY",
+    "KỸ THUẬT XƯỞNG 4 - VÕ HUỲNH DUY SƠN",
+    "KỸ THUẬT XƯỞNG 4 - NGUYỄN HỮU TÀI",
+  ],
+  teamLeaders: [
+    "TỔ TRƯỞNG TỔ 01 - BÙI TRẦN HỒNG HẠNH",
+    "TỔ TRƯỞNG TỔ 02 - TRẦN THỊ KIM DUYÊN",
+    "TỔ TRƯỞNG TỔ 03 - HUỲNH THỊ THU DUNG",
+    "TỔ TRƯỞNG TỔ 04 - NGUYỄN THỊ HỒNG CƯƠNG",
+    "TỔ TRƯỞNG TỔ 05 - NGUYỄN THỊ HỒNG VÂN",
+    "TỔ TRƯỞNG TỔ 06 - NGUYỄN THÀNH TÀI",
+    "TỔ TRƯỞNG TỔ 07 - NGUYỄN NGỌC BÍCH TRÂM",
+    "TỔ TRƯỞNG TỔ 08 - NGUYỄN VÂN CHÂU",
+    "TỔ TRƯỞNG TỔ 09 - ",
+    "TỔ TRƯỞNG TỔ 10 - VÕ THỊ THẢO NGUYÊN",
+    "TỔ TRƯỞNG TỔ 10 - LÊ TẤN TÀI",
+    "TỔ TRƯỞNG TỔ 11 - PHAN THỊ MỘNG CẦM",
+    "TỔ TRƯỞNG TỔ 12 - NGUYỄN THỊ THÚY KIỀU",
+    "TỔ TRƯỞNG TỔ 20.01 - LÊ THỊ KIM THOẠI",
+    "TỔ TRƯỞNG TỔ 15 - BÙI THỊ LAN ĐÀI",
+    "TỔ TRƯỞNG TỔ 16 - HÀ THỊ NGỌC KIỀU",
+    "TỔ TRƯỞNG TỔ 17 - NGUYỄN THỊ THÚY NGA",
+    "TỔ TRƯỞNG TỔ 18 - ",
+    "TỔ TRƯỞNG TỔ 19 - TRẦN BÌNH PHÚC",
+    "TỔ TRƯỞNG TỔ 20 - NGUYỄN THỊ HOÀNG OANH",
+    "TỔ TRƯỞNG TỔ 20 - LÊ NGUYỄN THIỆN TÂM",
+    "TỔ TRƯỞNG TỔ 21 - LÊ THỊ THÙY TRANG",
+    "TỔ TRƯỞNG TỔ 22 - NGUYỄN THANH TÙNG",
+    "TỔ TRƯỞNG TỔ 23 - TRƯƠNG KIM OANH",
+    "TỔ TRƯỞNG TỔ 24 - NGUYỄN THỊ NGỌC THI",
+    "TỔ TRƯỞNG TỔ 25 - CHÂU THỊ KIM THỦY",
+    "TỔ TRƯỞNG TỔ 26 - TRẦN PHẠM THỊ ANH ĐÀO",
+    "TỔ TRƯỞNG TỔ 27 - NGUYỄN THỊ THÙY LINH",
+    "TỔ TRƯỞNG TỔ 28 - NGUYỄN LAN NHI",
+    "TỔ TRƯỞNG TỔ 29 - ",
+    "TỔ TRƯỞNG TỔ 30 - ĐẶNG THỊ HỒNG NHUNG",
+    "TỔ TRƯỞNG TỔ 31 - ",
+    "TỔ TRƯỞNG TỔ 32 - ĐỖ THỊ NGỌC HẠNH",
+    "TỔ TRƯỞNG TỔ 33 - NGUYỄN THỊ MỘNG NHƯ",
+    "TỔ TRƯỞNG TỔ 34 - PHẠM THỊ THẢO NGUYÊN",
+    "TỔ TRƯỞNG TỔ 35 - NGUYỄN THỊ NGỌC HÂN",
+    "TỔ TRƯỞNG TỔ 36 - ",
+    "TỔ TRƯỞNG TỔ 37 - BÙI TUYẾT NHƯ",
+    "TỔ TRƯỞNG TỔ 38 - TRẦN KHANH QUỐC KHÁNH",
+    "TỔ TRƯỞNG TỔ 39 - QUÁCH TRỌNG NHÂN",
+    "TỔ TRƯỞNG TỔ 40 - LÊ THỊ KIM LIÊN",
+    "TỔ TRƯỞNG TỔ HOÀN THÀNH 1 - XƯỞNG 4 - TRẦN VĂN MINH",
+    "TỔ TRƯỞNG TỔ HOÀN THÀNH 2 - XƯỞNG 4 - NGUYỄN VĂN MẠNH",
+  ],
+};
 
-async function getPeopleList() {
-  const SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbxnjK1Ut-8rZXVd_xSqpRdABwwKpqXoNQYhEnspu5ZU87rzE7PsA54w0x5jjKVyWYm0jg/exec";
-
-  try {
-    const response = await fetch(SCRIPT_URL);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("There was a problem fetching the data:", error);
-    return {};
-  }
-}
-
-export default getPeopleList;
+export default peopleList;

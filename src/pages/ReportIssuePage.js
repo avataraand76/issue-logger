@@ -20,7 +20,7 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { useFormContext } from "../context/FormContext";
 import Header from "../components/Header";
 import AutofillPreventer from "../components/AutofillPreventer";
-import getPeopleList from "../data/peopleList";
+import peopleList from "../data/peopleList";
 import { addIssue } from "../data/api";
 import { format } from "date-fns";
 import EngineeringIcon from "@mui/icons-material/Engineering";
@@ -37,16 +37,6 @@ const ReportIssuePage = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
-  const [peopleList, setPeopleList] = useState({});
-
-  useEffect(() => {
-    const fetchPeopleList = async () => {
-      const fetchedPeopleList = await getPeopleList();
-      setPeopleList(fetchedPeopleList);
-    };
-
-    fetchPeopleList();
-  }, []);
 
   const lineNumbers = [
     ...Array.from({ length: 12 }, (_, i) => ({
@@ -97,7 +87,6 @@ const ReportIssuePage = () => {
       color: "success",
       icon: <SettingsIcon />,
     },
-    // { value: "Khác", label: "Khác" },
   ];
 
   const handleScopeSelection = (selectedScope) => {
@@ -171,7 +160,7 @@ const ReportIssuePage = () => {
   };
 
   const filterPeopleList = (lineNumber) => {
-    if (!lineNumber || Object.keys(peopleList).length === 0) {
+    if (!lineNumber) {
       setFilteredPeopleList([]);
       return;
     }
