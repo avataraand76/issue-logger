@@ -104,6 +104,25 @@ const peopleList = {
     "TỔ TRƯỞNG TỔ HOÀN THÀNH 1 - XƯỞNG 4 - TRẦN VĂN MINH",
     "TỔ TRƯỞNG TỔ HOÀN THÀNH 2 - XƯỞNG 4 - NGUYỄN VĂN MẠNH",
   ],
+  teamViceLeaders: [
+    "TỔ PHÓ TỔ 05 - ĐỖ THỊ HUỲNH NGA",
+    "TỔ PHÓ TỔ 06 - NGUYỄN THỊ NGỌC HƯƠNG",
+    "TỔ PHÓ TỔ 12 - HUỲNH THỊ DUYÊN",
+    "TỔ PHÓ TỔ 19 - NGUYỄN THỊ THANH LOAN",
+    "TỔ PHÓ TỔ 23 - NGUYỄN THỊ NGỌC LƯƠNG",
+    "TỔ PHÓ TỔ 24 - TRẦN THỊ KIM NGÂN",
+    "TỔ PHÓ TỔ 32 - NGUYỄN TRẦN NHỰT",
+    "TỔ PHÓ TỔ 37 - TRẦN THỊ CẨM TÚ",
+  ],
+  teamLineBalancing: [
+    "NHÂN VIÊN SƠ ĐỒ CHUYỀN - HỒ THỊ DIỄM TRINH",
+    "NHÂN VIÊN SƠ ĐỒ CHUYỀN - PHẠM THỊ TUYẾT TRÂN",
+    "NHÂN VIÊN SƠ ĐỒ CHUYỀN - TRẦN THỊ LỆ HẰNG",
+    "NHÂN VIÊN SƠ ĐỒ CHUYỀN - TRẦN VÕ UYÊN TRANG",
+    "NHÂN VIÊN SƠ ĐỒ CHUYỀN - NGUYỄN THỊ MỸ ANH",
+    "NHÂN VIÊN SƠ ĐỒ CHUYỀN - NGUYỄN THỊ CẨM NHUNG",
+    "NHÂN VIÊN SƠ ĐỒ CHUYỀN - ĐINH THỊ HỒNG DUYÊN",
+  ],
 };
 
 export default peopleList;

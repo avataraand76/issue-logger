@@ -8,6 +8,12 @@ import {
   Fade,
   Switch,
   FormControlLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Autocomplete,
 } from "@mui/material";
 import Header from "../components/Header";
 import IssueFilters from "../components/IssueFilters";
@@ -15,9 +21,10 @@ import IssueDetails from "../components/IssueDetails";
 import { useNavigate } from "react-router-dom";
 import { format, parse, isValid, isToday } from "date-fns";
 import LoadingAnimation from "../components/LoadingAnimation";
-import { fetchIssues } from "../data/api";
+import { fetchIssues, addIssue } from "../data/api";
 import AutofillPreventer from "../components/AutofillPreventer";
 import Pagination from "../components/Pagination";
+import peopleList from "../data/peopleList";
 
 const SupervisorPage = () => {
   const [issues, setIssues] = useState([]);
@@ -35,6 +42,112 @@ const SupervisorPage = () => {
     resolved: 0,
     unresolved: 0,
   });
+  const [openReportDialog, setOpenReportDialog] = useState(false);
+  const [reportData, setReportData] = useState({
+    lineNumber: "",
+    stationNumber: "",
+    scope: "",
+    responsiblePerson: "",
+  });
+  const [teamLeader, setTeamLeader] = useState("");
+
+  const handleOpenReportDialog = () => {
+    setOpenReportDialog(true);
+  };
+
+  const handleCloseReportDialog = () => {
+    setOpenReportDialog(false);
+    setReportData({
+      lineNumber: "",
+      stationNumber: "",
+      scope: "",
+      responsiblePerson: "",
+    });
+  };
+
+  const handleLineNumberChange = (event, newValue) => {
+    setReportData({
+      ...reportData,
+      lineNumber: newValue ? newValue.label : "",
+    });
+
+    // Find and set the team leader
+    if (newValue) {
+      const lineNumber = newValue.label.replace("Line ", "");
+      const teamLeader = peopleList.teamLeaders.find((leader) =>
+        leader.includes(`TỔ TRƯỞNG TỔ ${lineNumber.padStart(2, "0")}`)
+      );
+      setTeamLeader(teamLeader || "");
+    } else {
+      setTeamLeader("");
+    }
+  };
+
+  const handleReportSubmit = async () => {
+    // Implement the logic to submit the report
+    try {
+      const data = {
+        action: "addIssue",
+        submissionTime: format(new Date(), "HH:mm MM/dd/yyyy", {
+          timeZone: "Asia/Ho_Chi_Minh",
+        }),
+        ...reportData,
+      };
+      const result = await addIssue(data);
+      if (result.status === "success") {
+        // Optionally, you can update the issues list or show a success message
+        handleCloseReportDialog();
+        fetchIssuesData(); // Refresh the issues list
+      } else {
+        console.error("Failed to add issue:", result.message);
+      }
+    } catch (error) {
+      console.error("Error adding issue:", error);
+    }
+  };
+
+  const lineNumbers = [
+    ...Array.from({ length: 12 }, (_, i) => ({
+      value: i + 1,
+      label: `Line ${i + 1}`,
+    })),
+    { value: 20.01, label: "Line 20.01" },
+    ...Array.from({ length: 26 }, (_, i) => ({
+      value: i + 15,
+      label: `Line ${i + 15}`,
+    })),
+    { value: 41, label: "Tổ hoàn thành 1 - xưởng 4" },
+    { value: 42, label: "Tổ hoàn thành 2 - xưởng 4" },
+  ];
+
+  const stationNumbers = [
+    ...Array.from({ length: 80 }, (_, i) => ({
+      value: i + 1,
+      label: `${i + 1}`,
+    })),
+    { value: "QC", label: "QC" },
+    { value: "KT", label: "KỸ THUẬT" },
+    { value: "DG", label: "ĐÓNG GÓI" },
+  ];
+
+  const scopes = [
+    {
+      value: "Máy móc",
+      label: "Máy móc",
+    },
+    {
+      value: "Con người",
+      label: "Con người",
+    },
+    {
+      value: "Nguyên phụ liệu",
+      label: "Nguyên phụ liệu",
+    },
+    {
+      value: "Phương pháp",
+      label: "Phương pháp",
+    },
+  ];
 
   useEffect(() => {
     fetchIssuesData();
@@ -140,13 +253,24 @@ const SupervisorPage = () => {
       <Header />
       <Container maxWidth="md">
         <AutofillPreventer />
-        <Button
-          onClick={handleBack}
-          variant="outlined"
-          style={{ marginBottom: "20px" }}
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={2}
         >
-          Quay lại
-        </Button>
+          <Button onClick={handleBack} variant="outlined">
+            Quay lại
+          </Button>
+          <Button
+            onClick={handleOpenReportDialog}
+            variant="contained"
+            color="primary"
+            style={{ backgroundColor: "red" }}
+          >
+            Báo cáo
+          </Button>
+        </Box>
         <Typography variant="h4" gutterBottom>
           DANH SÁCH VẤN ĐỀ DOWNTIME - GIÁM SÁT
         </Typography>
@@ -203,6 +327,100 @@ const SupervisorPage = () => {
             </Fade>
           </>
         )}
+        <Dialog
+          open={openReportDialog}
+          onClose={handleCloseReportDialog}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle align="center">BÁO CÁO GIÁM SÁT</DialogTitle>
+          <DialogContent>
+            <Autocomplete
+              options={lineNumbers}
+              getOptionLabel={(option) => option.label}
+              onChange={handleLineNumberChange}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Số chuyền"
+                  fullWidth
+                  margin="normal"
+                />
+              )}
+            />
+            <TextField
+              label="Tổ trưởng"
+              value={teamLeader}
+              fullWidth
+              margin="normal"
+              InputProps={{
+                readOnly: true,
+              }}
+            />
+            <Autocomplete
+              multiple
+              options={stationNumbers}
+              getOptionLabel={(option) => option.label}
+              onChange={(event, newValue) =>
+                setReportData({
+                  ...reportData,
+                  stationNumber: newValue.map((v) => v.label).join(", "),
+                })
+              }
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Số trạm"
+                  fullWidth
+                  margin="normal"
+                />
+              )}
+            />
+            <Autocomplete
+              options={scopes}
+              getOptionLabel={(option) => option.label}
+              onChange={(event, newValue) =>
+                setReportData({
+                  ...reportData,
+                  scope: newValue ? newValue.value : "",
+                })
+              }
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Phạm vi vấn đề"
+                  fullWidth
+                  margin="normal"
+                />
+              )}
+            />
+            <Autocomplete
+              options={peopleList.teamLineBalancing}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Người ghi nhận vấn đề"
+                  fullWidth
+                  multiline
+                  margin="normal"
+                />
+              )}
+              onChange={(event, newValue) =>
+                setReportData({ ...reportData, responsiblePerson: newValue })
+              }
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseReportDialog}>Hủy</Button>
+            <Button
+              onClick={handleReportSubmit}
+              variant="contained"
+              color="primary"
+            >
+              Gửi báo cáo
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     </>
   );

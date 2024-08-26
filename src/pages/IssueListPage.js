@@ -129,6 +129,7 @@ const IssueListPage = () => {
 
     let filteredList = [];
     let workshopList = [];
+    let lineNum = null;
 
     if (lineNumber === "Line 20.01") {
       const teamLeaders = peopleList.teamLeaders.filter((person) =>
@@ -143,7 +144,7 @@ const IssueListPage = () => {
       workshopList = peopleList.workshop2;
       filteredList = [...filteredList, ...teamLeaders, ...workshopList];
     } else {
-      const lineNum = parseInt(lineNumber.replace("Line ", ""));
+      lineNum = parseInt(lineNumber.replace("Line ", ""));
 
       if (lineNum >= 1 && lineNum <= 10) {
         workshopList = peopleList.workshop1;
@@ -170,9 +171,18 @@ const IssueListPage = () => {
             person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 2"))
       );
 
-      filteredList = [...filteredList, ...teamLeaders, ...workshopList];
+      filteredList = [...filteredList, ...teamLeaders];
     }
 
+    // Add team vice leaders
+    if (lineNum) {
+      const teamViceLeaders = peopleList.teamViceLeaders.filter((person) =>
+        person.includes(`TỔ PHÓ TỔ ${lineNum.toString().padStart(2, "0")}`)
+      );
+      filteredList = [...filteredList, ...teamViceLeaders];
+    }
+
+    filteredList = [...filteredList, ...workshopList];
     filteredList.push("CÔNG NHÂN TỰ XỬ LÝ");
     setFilteredPeopleList(filteredList);
   }, []);
