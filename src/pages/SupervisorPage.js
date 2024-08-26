@@ -11,9 +11,13 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogContentText,
   DialogActions,
   TextField,
   Autocomplete,
+  Chip,
+  CircularProgress,
+  IconButton,
 } from "@mui/material";
 import Header from "../components/Header";
 import IssueFilters from "../components/IssueFilters";
@@ -21,10 +25,11 @@ import IssueDetails from "../components/IssueDetails";
 import { useNavigate } from "react-router-dom";
 import { format, parse, isValid, isToday } from "date-fns";
 import LoadingAnimation from "../components/LoadingAnimation";
-import { fetchIssues, addIssue } from "../data/api";
+import { fetchIssues } from "../data/api";
 import AutofillPreventer from "../components/AutofillPreventer";
 import Pagination from "../components/Pagination";
 import peopleList from "../data/peopleList";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 const SupervisorPage = () => {
   const [issues, setIssues] = useState([]);
@@ -50,6 +55,10 @@ const SupervisorPage = () => {
     responsiblePerson: "",
   });
   const [teamLeader, setTeamLeader] = useState("");
+  const [selectedStations, setSelectedStations] = useState([]);
+  const [stationInput, setStationInput] = useState({ value: "", error: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   const handleOpenReportDialog = () => {
     setOpenReportDialog(true);
@@ -63,6 +72,9 @@ const SupervisorPage = () => {
       scope: "",
       responsiblePerson: "",
     });
+    setTeamLeader("");
+    setSelectedStations([]);
+    setStationInput({ value: "", error: "" });
   };
 
   const handleLineNumberChange = (event, newValue) => {
@@ -71,38 +83,75 @@ const SupervisorPage = () => {
       lineNumber: newValue ? newValue.label : "",
     });
 
-    // Find and set the team leader
+    // Find and set the team leader(s)
     if (newValue) {
-      const lineNumber = newValue.label.replace("Line ", "");
-      const teamLeader = peopleList.teamLeaders.find((leader) =>
-        leader.includes(`TỔ TRƯỞNG TỔ ${lineNumber.padStart(2, "0")}`)
-      );
-      setTeamLeader(teamLeader || "");
+      const lineNumber = newValue.label;
+      let teamLeaders = [];
+
+      if (lineNumber === "Line 20.01") {
+        teamLeaders = peopleList.teamLeaders.filter((leader) =>
+          leader.includes("TỔ TRƯỞNG TỔ 20.01")
+        );
+      } else if (lineNumber === "Line 20") {
+        teamLeaders = peopleList.teamLeaders.filter((leader) =>
+          leader.includes("TỔ TRƯỞNG TỔ 20 -")
+        );
+      } else if (lineNumber === "Tổ hoàn thành 1 - xưởng 4") {
+        teamLeaders = peopleList.teamLeaders.filter((leader) =>
+          leader.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 1")
+        );
+      } else if (lineNumber === "Tổ hoàn thành 2 - xưởng 4") {
+        teamLeaders = peopleList.teamLeaders.filter((leader) =>
+          leader.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 2")
+        );
+      } else {
+        const lineNum = lineNumber.replace("Line ", "").padStart(2, "0");
+        teamLeaders = peopleList.teamLeaders.filter((leader) =>
+          leader.includes(`TỔ TRƯỞNG TỔ ${lineNum}`)
+        );
+      }
+
+      setTeamLeader(teamLeaders.join("\n") || "");
     } else {
       setTeamLeader("");
     }
   };
 
   const handleReportSubmit = async () => {
-    // Implement the logic to submit the report
+    setIsSubmitting(true);
     try {
       const data = {
-        action: "addIssue",
-        submissionTime: format(new Date(), "HH:mm MM/dd/yyyy", {
-          timeZone: "Asia/Ho_Chi_Minh",
-        }),
-        ...reportData,
+        lineNumber: reportData.lineNumber,
+        stationNumber: reportData.stationNumber,
+        scope: reportData.scope,
+        teamLeader: teamLeader,
+        responsiblePerson: reportData.responsiblePerson,
       };
-      const result = await addIssue(data);
+
+      const response = await fetch(
+        "https://script.google.com/macros/s/AKfycbxQedxN0wbT_W7OpTA02r9mXblc40wbx9kxIAyCg37ukHF1azKP3_cWwes9ZZwq5IOU/exec",
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+
+      const result = await response.json();
+
       if (result.status === "success") {
-        // Optionally, you can update the issues list or show a success message
-        handleCloseReportDialog();
-        fetchIssuesData(); // Refresh the issues list
+        setShowSuccessDialog(true);
+        setTimeout(() => {
+          setShowSuccessDialog(false);
+          handleCloseReportDialog();
+          fetchIssuesData();
+        }, 2000);
       } else {
         console.error("Failed to add issue:", result.message);
       }
     } catch (error) {
       console.error("Error adding issue:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -153,6 +202,35 @@ const SupervisorPage = () => {
     fetchIssuesData();
   }, []);
 
+  const handleStationAdd = (event, newValue) => {
+    if (newValue) {
+      if (!selectedStations.includes(newValue.label)) {
+        setSelectedStations([...selectedStations, newValue.label]);
+        setStationInput({ value: "", error: "" });
+        setReportData({
+          ...reportData,
+          stationNumber: [...selectedStations, newValue.label].join(", "),
+        });
+      } else {
+        setStationInput({
+          value: newValue.label,
+          error: `ĐÃ NHẬP TRẠM ${newValue.label} RỒI!`,
+        });
+      }
+    }
+  };
+
+  const handleStationDelete = (stationToDelete) => () => {
+    const updatedStations = selectedStations.filter(
+      (station) => station !== stationToDelete
+    );
+    setSelectedStations(updatedStations);
+    setReportData({
+      ...reportData,
+      stationNumber: updatedStations.join(", "),
+    });
+  };
+
   const isIssueFromToday = (issue) => {
     const issueDate = parse(
       issue.submissionTime,
@@ -167,7 +245,11 @@ const SupervisorPage = () => {
     try {
       const data = await fetchIssues();
       if (Array.isArray(data)) {
-        setIssues(data); // Không lọc ra các vấn đề chưa kết thúc
+        const issuesWithType = data.map((issue) => ({
+          ...issue,
+          type: issue.issue ? "issue" : "supervisorReport",
+        }));
+        setIssues(issuesWithType);
       } else {
         console.error("Received data is not an array:", data);
       }
@@ -352,30 +434,43 @@ const SupervisorPage = () => {
               label="Tổ trưởng"
               value={teamLeader}
               fullWidth
+              multiline
+              minRows={2}
               margin="normal"
               InputProps={{
                 readOnly: true,
               }}
             />
             <Autocomplete
-              multiple
               options={stationNumbers}
               getOptionLabel={(option) => option.label}
-              onChange={(event, newValue) =>
-                setReportData({
-                  ...reportData,
-                  stationNumber: newValue.map((v) => v.label).join(", "),
-                })
-              }
+              onChange={handleStationAdd}
+              value={stationInput.value ? { label: stationInput.value } : null}
+              inputValue={stationInput.value}
+              onInputChange={(event, newInputValue) => {
+                setStationInput({ value: newInputValue, error: "" });
+              }}
               renderInput={(params) => (
                 <TextField
                   {...params}
                   label="Số trạm"
                   fullWidth
                   margin="normal"
+                  error={!!stationInput.error}
+                  helperText={stationInput.error}
                 />
               )}
             />
+            <Box sx={{ mt: 1, mb: 2 }}>
+              {selectedStations.map((station) => (
+                <Chip
+                  key={station}
+                  label={station}
+                  onDelete={handleStationDelete(station)}
+                  sx={{ m: 0.5 }}
+                />
+              ))}
+            </Box>
             <Autocomplete
               options={scopes}
               getOptionLabel={(option) => option.label}
@@ -417,11 +512,61 @@ const SupervisorPage = () => {
               variant="contained"
               color="primary"
             >
-              Gửi báo cáo
+              Gửi báo cáo giám sát
             </Button>
           </DialogActions>
         </Dialog>
       </Container>
+      <Dialog
+        open={isSubmitting}
+        PaperProps={{
+          style: {
+            backgroundColor: "transparent",
+            boxShadow: "none",
+            overflow: "hidden",
+          },
+        }}
+      >
+        <DialogContent style={{ textAlign: "center", padding: "40px" }}>
+          <CircularProgress size={60} />
+          <DialogContentText style={{ marginTop: "20px", color: "#fff" }}>
+            Đang ghi dữ liệu...
+          </DialogContentText>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={showSuccessDialog}
+        onClose={() => setShowSuccessDialog(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        PaperProps={{
+          style: {
+            backgroundColor: "rgba(255, 255, 255, 0.9)",
+            boxShadow: "none",
+            overflow: "hidden",
+          },
+        }}
+      >
+        <DialogContent style={{ textAlign: "center", padding: "40px" }}>
+          <IconButton
+            color="primary"
+            style={{
+              backgroundColor: "rgba(76, 175, 80, 0.1)",
+              padding: "20px",
+              marginBottom: "20px",
+            }}
+          >
+            <CheckCircleOutlineIcon style={{ fontSize: 60 }} />
+          </IconButton>
+          <DialogContentText
+            id="alert-dialog-description"
+            style={{ fontSize: "1.2rem" }}
+          >
+            Ghi nhận dữ liệu thành công!
+          </DialogContentText>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
