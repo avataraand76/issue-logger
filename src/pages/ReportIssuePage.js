@@ -23,6 +23,10 @@ import AutofillPreventer from "../components/AutofillPreventer";
 import peopleList from "../data/peopleList";
 import { addIssue } from "../data/api";
 import { format } from "date-fns";
+import EngineeringIcon from "@mui/icons-material/Engineering";
+import PeopleIcon from "@mui/icons-material/People";
+import InventoryIcon from "@mui/icons-material/Inventory";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 const ReportIssuePage = () => {
   const { formData, updateFormData, resetFormData } = useFormContext();
@@ -59,11 +63,30 @@ const ReportIssuePage = () => {
   ];
 
   const scopes = [
-    { value: "Máy móc", label: "Máy móc" },
-    { value: "Con người", label: "Con người" },
-    { value: "Nguyên phụ liệu", label: "Nguyên phụ liệu" },
-    { value: "Phương pháp", label: "Phương pháp" },
-    // { value: "Khác", label: "Khác" },
+    {
+      value: "Máy móc",
+      label: "Máy móc",
+      color: "error",
+      icon: <EngineeringIcon />,
+    },
+    {
+      value: "Con người",
+      label: "Con người",
+      color: "warning",
+      icon: <PeopleIcon />,
+    },
+    {
+      value: "Nguyên phụ liệu",
+      label: "Nguyên phụ liệu",
+      color: "primary",
+      icon: <InventoryIcon />,
+    },
+    {
+      value: "Phương pháp",
+      label: "Phương pháp",
+      color: "success",
+      icon: <SettingsIcon />,
+    },
   ];
 
   const handleScopeSelection = (selectedScope) => {
@@ -144,6 +167,7 @@ const ReportIssuePage = () => {
 
     let filteredList = [];
     let workshopList = [];
+    let lineNum = null;
 
     if (lineNumber === "Line 20.01") {
       const teamLeaders = peopleList.teamLeaders.filter((person) =>
@@ -158,7 +182,7 @@ const ReportIssuePage = () => {
       workshopList = peopleList.workshop2;
       filteredList = [...teamLeaders, ...workshopList];
     } else {
-      const lineNum = parseInt(lineNumber.replace("Line ", ""));
+      lineNum = parseInt(lineNumber.replace("Line ", ""));
 
       if (lineNum >= 1 && lineNum <= 10) {
         workshopList = peopleList.workshop1;
@@ -185,9 +209,18 @@ const ReportIssuePage = () => {
             person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 2"))
       );
 
-      filteredList = [...teamLeaders, ...workshopList];
+      filteredList = [...teamLeaders];
     }
 
+    // Add team vice leaders
+    if (lineNum) {
+      const teamViceLeaders = peopleList.teamViceLeaders.filter((person) =>
+        person.includes(`TỔ PHÓ TỔ ${lineNum.toString().padStart(2, "0")}`)
+      );
+      filteredList = [...filteredList, ...teamViceLeaders];
+    }
+
+    filteredList = [...filteredList, ...workshopList];
     setFilteredPeopleList(filteredList);
   };
 
@@ -293,14 +326,22 @@ const ReportIssuePage = () => {
               <Grid item xs={12} sm={6} key={scope.value}>
                 <Button
                   variant="contained"
-                  color="primary"
+                  color={scope.color}
                   fullWidth
                   onClick={() => handleScopeSelection(scope.value)}
                   disabled={
                     !formData.lineNumber || selectedStations.length === 0
                   }
-                  sx={{ py: 1.5, fontSize: { xs: "0.8rem", sm: "0.9rem" } }}
+                  sx={{
+                    py: 2,
+                    fontSize: { xs: "1rem", sm: "1.1rem" },
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
                 >
+                  {scope.icon}
                   {scope.label}
                 </Button>
               </Grid>

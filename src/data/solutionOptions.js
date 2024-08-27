@@ -1,5 +1,5 @@
-// src/data/remediationOptions.js
-const remediationOptions = {
+// src/data/solutionOptions.js
+const solutionOptions = {
   machinery: [
     "Cơ điện sửa máy tại chỗ",
     "Đổi máy dự phòng",
@@ -42,4 +42,4 @@ const remediationOptions = {
   ],
 };
 
-export default remediationOptions;
+export default solutionOptions;

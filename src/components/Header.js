@@ -4,6 +4,7 @@ import { AppBar, Toolbar, Box, Container } from "@mui/material";
 import { styled } from "@mui/system";
 import { useTheme } from "@mui/material/styles";
 import logo from "../assets/logo2.png";
+import { useNavigate } from "react-router-dom";
 
 const CustomAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: "white",
@@ -32,6 +33,10 @@ const CompanyName = styled("div")(({ theme }) => ({
 
 const Header = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
+  const handleLogoClick = () => {
+    navigate("/supervisor");
+  };
 
   return (
     <CustomAppBar position="static">
@@ -46,9 +51,11 @@ const Header = () => {
             <img
               src={logo}
               alt="Company Logo"
+              onClick={handleLogoClick}
               style={{
                 marginRight: "16px",
                 height: "50px",
+                cursor: "pointer",
                 [theme.breakpoints.down(340)]: {
                   height: "40px",
                   marginRight: "8px",

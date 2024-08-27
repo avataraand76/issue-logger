@@ -7,6 +7,7 @@ import {
   Collapse,
   Button,
   Typography,
+  Box,
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { format, parse } from "date-fns";
@@ -21,18 +22,31 @@ const IssueDetails = ({
   expandedIssue,
   handleExpand,
   handleEndIssue,
+  showEndIssueButton = true,
+  isSupervisorPage = false,
 }) => {
   return (
     <List>
       {filteredIssues.map((issue) => (
-        <React.Fragment key={issue.id}>
+        <Box
+          key={issue.id}
+          sx={{
+            backgroundColor: isSupervisorPage
+              ? issue.endTime
+                ? "#e8f5e9"
+                : "#ffebee"
+              : "transparent", // Chỉ áp dụng màu nền nếu là trang Supervisor
+            borderRadius: "4px",
+            mb: 1,
+            overflow: "hidden",
+          }}
+        >
           <ListItem
             button
             onClick={() => handleExpand(issue.id)}
             sx={{
               border: "1px solid #000",
               borderRadius: "4px",
-              mb: 1,
             }}
           >
             <ListItemText
@@ -52,10 +66,9 @@ const IssueDetails = ({
               <ListItem
                 sx={{
                   border: "1px solid #000",
-                  borderRadius: "4px",
-                  m: 1,
+                  borderTop: "none",
                   padding: 2,
-                  width: "calc(100% - 32px)",
+                  width: "100%",
                   boxSizing: "border-box",
                 }}
               >
@@ -89,7 +102,7 @@ const IssueDetails = ({
                           : "Chưa kết thúc"}
                       </Typography>
                       <Typography component="span" display="block">
-                        Phương án giải quyết: {issue.remediation || "Chưa có"}
+                        Phương án giải quyết: {issue.solution || "Chưa có"}
                       </Typography>
                       <Typography component="span" display="block">
                         Người giải quyết:{" "}
@@ -99,7 +112,7 @@ const IssueDetails = ({
                         Người ghi nhận:{" "}
                         {issue.responsiblePerson || "Chưa xác định"}
                       </Typography>
-                      {!issue.endTime && (
+                      {!issue.endTime && showEndIssueButton && (
                         <Button
                           variant="contained"
                           color="primary"
@@ -115,7 +128,7 @@ const IssueDetails = ({
               </ListItem>
             </List>
           </Collapse>
-        </React.Fragment>
+        </Box>
       ))}
     </List>
   );

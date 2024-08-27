@@ -29,7 +29,7 @@ import Pagination from "../components/Pagination";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import peopleList from "../data/peopleList";
 import issueOptions from "../data/issueOptions";
-import remediationOptions from "../data/remediationOptions";
+import solutionOptions from "../data/solutionOptions";
 import machineryCodes from "../data/machineryCodes";
 import ClearIcon from "@mui/icons-material/Clear";
 
@@ -48,17 +48,15 @@ const IssueListPage = () => {
   const [openEndIssueDialog, setOpenEndIssueDialog] = useState(false);
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [issueDescription, setIssueDescription] = useState("");
-  const [remediation, setRemediation] = useState("");
+  const [solution, setSolution] = useState("");
   const [responsiblePerson, setResponsiblePerson] = useState("");
   const [endTime, setEndTime] = useState("");
   const [downtimeMinutes, setDowntimeMinutes] = useState(0);
   const [filteredPeopleList, setFilteredPeopleList] = useState([]);
   const [filteredIssueOptions, setFilteredIssueOptions] = useState([]);
   const [otherIssue, setOtherIssue] = useState("");
-  const [currentRemediationOptions, setCurrentRemediationOptions] = useState(
-    []
-  );
-  const [otherRemediation, setOtherRemediation] = useState("");
+  const [currentSolutionOptions, setCurrentSolutionOptions] = useState([]);
+  const [otherSolution, setOtherSolution] = useState("");
   const [machineryType, setMachineryType] = useState("");
   const [machineryCode, setMachineryCode] = useState(null);
 
@@ -131,6 +129,7 @@ const IssueListPage = () => {
 
     let filteredList = [];
     let workshopList = [];
+    let lineNum = null;
 
     if (lineNumber === "Line 20.01") {
       const teamLeaders = peopleList.teamLeaders.filter((person) =>
@@ -145,7 +144,7 @@ const IssueListPage = () => {
       workshopList = peopleList.workshop2;
       filteredList = [...filteredList, ...teamLeaders, ...workshopList];
     } else {
-      const lineNum = parseInt(lineNumber.replace("Line ", ""));
+      lineNum = parseInt(lineNumber.replace("Line ", ""));
 
       if (lineNum >= 1 && lineNum <= 10) {
         workshopList = peopleList.workshop1;
@@ -172,9 +171,18 @@ const IssueListPage = () => {
             person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 2"))
       );
 
-      filteredList = [...filteredList, ...teamLeaders, ...workshopList];
+      filteredList = [...filteredList, ...teamLeaders];
     }
 
+    // Add team vice leaders
+    if (lineNum) {
+      const teamViceLeaders = peopleList.teamViceLeaders.filter((person) =>
+        person.includes(`TỔ PHÓ TỔ ${lineNum.toString().padStart(2, "0")}`)
+      );
+      filteredList = [...filteredList, ...teamViceLeaders];
+    }
+
+    filteredList = [...filteredList, ...workshopList];
     filteredList.push("CÔNG NHÂN TỰ XỬ LÝ");
     setFilteredPeopleList(filteredList);
   }, []);
@@ -183,23 +191,23 @@ const IssueListPage = () => {
     switch (scope) {
       case "Máy móc":
         setFilteredIssueOptions(issueOptions.machinery);
-        setCurrentRemediationOptions(remediationOptions.machinery || []);
+        setCurrentSolutionOptions(solutionOptions.machinery || []);
         break;
       case "Nguyên phụ liệu":
         setFilteredIssueOptions(issueOptions.materials);
-        setCurrentRemediationOptions(remediationOptions.materials || []);
+        setCurrentSolutionOptions(solutionOptions.materials || []);
         break;
       case "Phương pháp":
         setFilteredIssueOptions(issueOptions.method);
-        setCurrentRemediationOptions(remediationOptions.method || []);
+        setCurrentSolutionOptions(solutionOptions.method || []);
         break;
       case "Con người":
         setFilteredIssueOptions(issueOptions.people);
-        setCurrentRemediationOptions(remediationOptions.people || []);
+        setCurrentSolutionOptions(solutionOptions.people || []);
         break;
       default:
         setFilteredIssueOptions([]);
-        setCurrentRemediationOptions([]);
+        setCurrentSolutionOptions([]);
     }
   }, []);
 
@@ -232,12 +240,12 @@ const IssueListPage = () => {
     setOpenEndIssueDialog(false);
     setSelectedIssue(null);
     setIssueDescription("");
-    setRemediation("");
+    setSolution("");
     setResponsiblePerson("");
     setEndTime("");
     setDowntimeMinutes(0);
     setOtherIssue("");
-    setOtherRemediation("");
+    setOtherSolution("");
     setMachineryType("");
     setMachineryCode(null);
   };
@@ -247,8 +255,8 @@ const IssueListPage = () => {
     try {
       const finalIssueDescription =
         issueDescription === "Khác" ? `Khác - ${otherIssue}` : issueDescription;
-      const finalRemediation =
-        remediation === "Khác" ? `Khác - ${otherRemediation}` : remediation;
+      const finalSolution =
+        solution === "Khác" ? `Khác - ${otherSolution}` : solution;
       const result = await endIssue(selectedIssue.id, endTime, {
         downtimeMinutes,
         machineryType: selectedIssue.scope === "Máy móc" ? machineryType : "",
@@ -259,7 +267,7 @@ const IssueListPage = () => {
               : ""
             : "",
         issue: finalIssueDescription,
-        remediation: finalRemediation,
+        solution: finalSolution,
         problemSolver: responsiblePerson,
         responsiblePerson: selectedIssue.problemSolver, // Giữ nguyên người ghi nhận ban đầu
       });
@@ -463,7 +471,7 @@ const IssueListPage = () => {
             />
           )}
           <Autocomplete
-            options={currentRemediationOptions}
+            options={currentSolutionOptions}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -473,30 +481,27 @@ const IssueListPage = () => {
                 variant="outlined"
               />
             )}
-            value={remediation}
+            value={solution}
             onChange={(event, newValue) => {
-              setRemediation(newValue);
+              setSolution(newValue);
               if (newValue !== "Khác") {
-                // Reset otherRemediation if not "Khác"
-                setOtherRemediation("");
+                // Reset otherSolution if not "Khác"
+                setOtherSolution("");
               }
             }}
           />
-          {remediation === "Khác" && (
+          {solution === "Khác" && (
             <TextField
               margin="dense"
               label="Nhập phương án giải quyết khác"
               type="text"
               fullWidth
               variant="outlined"
-              value={otherRemediation}
-              onChange={(e) => setOtherRemediation(e.target.value)}
+              value={otherSolution}
+              onChange={(e) => setOtherSolution(e.target.value)}
               InputProps={{
                 endAdornment: (
-                  <IconButton
-                    onClick={() => setOtherRemediation("")}
-                    edge="end"
-                  >
+                  <IconButton onClick={() => setOtherSolution("")} edge="end">
                     <ClearIcon />
                   </IconButton>
                 ),
