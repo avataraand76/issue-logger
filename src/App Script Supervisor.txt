@@ -1,4 +1,4 @@
-// Code.gs version 4 26/08/2024
+// Code.gs version 3 26/08/2024
 
 function doPost(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -8,6 +8,7 @@ function doPost(e) {
   
   var vietnamTime = Utilities.formatDate(new Date(), "Asia/Ho_Chi_Minh", "HH:mm MM/dd/yyyy");
   
+  // Kết hợp tất cả tổ trưởng thành một chuỗi, phân tách bằng dấu phẩy
   var teamLeaders = data.teamLeader.split("\n").join("\n");
   
   var stations = data.stationNumber.split(", ");
@@ -18,36 +19,13 @@ function doPost(e) {
       data.lineNumber,
       station,
       data.scope,
-      teamLeaders,
-      data.responsiblePerson,
-      "supervisorReport"  // Add this new column to distinguish supervisor reports
+      teamLeaders,  // Sử dụng chuỗi kết hợp của tất cả tổ trưởng
+      data.responsiblePerson
     ];
     
     sheet.appendRow(rowData);
   });
   
   return ContentService.createTextOutput(JSON.stringify({status: "success"}))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-function doGet() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName("Sheet1");
-  var data = sheet.getDataRange().getValues();
-  
-  var issues = data.slice(1).map(function(row, index) {
-    return {
-      id: index + 1,
-      submissionTime: row[0],
-      lineNumber: row[1],
-      stationNumber: row[2],
-      scope: row[3],
-      teamLeader: row[4],
-      responsiblePerson: row[5],
-      type: row[6] || "issue"  // Use the new column to set the type
-    };
-  });
-  
-  return ContentService.createTextOutput(JSON.stringify(issues))
     .setMimeType(ContentService.MimeType.JSON);
 }
