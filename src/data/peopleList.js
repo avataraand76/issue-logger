@@ -103,6 +103,7 @@ const peopleList = {
     "TỔ TRƯỞNG TỔ 40 - LÊ THỊ KIM LIÊN",
     "TỔ TRƯỞNG TỔ HOÀN THÀNH 1 - XƯỞNG 4 - TRẦN VĂN MINH",
     "TỔ TRƯỞNG TỔ HOÀN THÀNH 2 - XƯỞNG 4 - NGUYỄN VĂN MẠNH",
+    "TỔ TRƯỞNG TỔ CHI TIẾT - XƯỞNG 4 - NGUYỄN MINH SANG",
   ],
   teamViceLeaders: [
     "TỔ PHÓ TỔ 05 - ĐỖ THỊ HUỲNH NGA",

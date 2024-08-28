@@ -314,7 +314,7 @@ const SupervisorPage = () => {
   }, [issues, searchTerm, filterDate, showUnresolvedOnly, filterIssues]);
 
   const handleBack = () => {
-    navigate(-1);
+    navigate("/");
   };
 
   const handleExpand = (id) => {

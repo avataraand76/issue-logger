@@ -50,6 +50,7 @@ const ReportIssuePage = () => {
     })),
     { value: 41, label: "Tổ hoàn thành 1 - xưởng 4" },
     { value: 42, label: "Tổ hoàn thành 2 - xưởng 4" },
+    { value: 43, label: "Tổ chi tiết - xưởng 4" },
   ];
 
   const stationNumbers = [
@@ -193,7 +194,8 @@ const ReportIssuePage = () => {
       } else if (
         (lineNum >= 31 && lineNum <= 40) ||
         lineNumber === "Tổ hoàn thành 1 - xưởng 4" ||
-        lineNumber === "Tổ hoàn thành 2 - xưởng 4"
+        lineNumber === "Tổ hoàn thành 2 - xưởng 4" ||
+        lineNumber === "Tổ chi tiết - xưởng 4"
       ) {
         workshopList = peopleList.workshop4;
       }
@@ -206,7 +208,9 @@ const ReportIssuePage = () => {
           (lineNumber === "Tổ hoàn thành 1 - xưởng 4" &&
             person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 1")) ||
           (lineNumber === "Tổ hoàn thành 2 - xưởng 4" &&
-            person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 2"))
+            person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 2")) ||
+          (lineNumber === "Tổ chi tiết - xưởng 4" &&
+            person.includes("TỔ TRƯỞNG TỔ CHI TIẾT"))
       );
 
       filteredList = [...teamLeaders];
@@ -351,7 +355,7 @@ const ReportIssuePage = () => {
             variant="outlined"
             color="secondary"
             fullWidth
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/")}
             sx={{ mt: 3, py: 1.5, fontSize: { xs: "0.8rem", sm: "0.9rem" } }}
           >
             Back

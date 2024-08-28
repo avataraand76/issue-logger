@@ -155,7 +155,8 @@ const IssueListPage = () => {
       } else if (
         (lineNum >= 31 && lineNum <= 40) ||
         lineNumber === "Tổ hoàn thành 1 - xưởng 4" ||
-        lineNumber === "Tổ hoàn thành 2 - xưởng 4"
+        lineNumber === "Tổ hoàn thành 2 - xưởng 4" ||
+        lineNumber === "Tổ chi tiết - xưởng 4"
       ) {
         workshopList = peopleList.workshop4;
       }
@@ -168,7 +169,9 @@ const IssueListPage = () => {
           (lineNumber === "Tổ hoàn thành 1 - xưởng 4" &&
             person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 1")) ||
           (lineNumber === "Tổ hoàn thành 2 - xưởng 4" &&
-            person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 2"))
+            person.includes("TỔ TRƯỞNG TỔ HOÀN THÀNH 2")) ||
+          (lineNumber === "Tổ chi tiết - xưởng 4" &&
+            person.includes("TỔ TRƯỞNG TỔ CHI TIẾT"))
       );
 
       filteredList = [...filteredList, ...teamLeaders];
@@ -290,7 +293,7 @@ const IssueListPage = () => {
   };
 
   const handleBack = () => {
-    navigate(-1);
+    navigate("/");
   };
 
   const handleExpand = (id) => {
