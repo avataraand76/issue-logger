@@ -490,7 +490,7 @@ const SupervisorPage = () => {
               )}
             />
             <Autocomplete
-              options={peopleList.teamLineBalancing}
+              options={peopleList.teamSupervisor}
               renderInput={(params) => (
                 <TextField
                   {...params}
