@@ -59,10 +59,41 @@ const IssueListPage = () => {
   const [otherSolution, setOtherSolution] = useState("");
   const [machineryType, setMachineryType] = useState("");
   const [machineryCode, setMachineryCode] = useState(null);
+  const [isFormValid, setIsFormValid] = useState(false);
 
   useEffect(() => {
     fetchIssuesData();
   }, []);
+
+  useEffect(() => {
+    const checkFormValidity = () => {
+      let isValid = true;
+
+      if (!issueDescription) isValid = false;
+      if (issueDescription === "Khác" && !otherIssue) isValid = false;
+      if (!solution) isValid = false;
+      if (solution === "Khác" && !otherSolution) isValid = false;
+      if (!responsiblePerson) isValid = false;
+
+      if (selectedIssue && selectedIssue.scope === "Máy móc") {
+        if (!machineryType) isValid = false;
+        if (!machineryCode) isValid = false;
+      }
+
+      setIsFormValid(isValid);
+    };
+
+    checkFormValidity();
+  }, [
+    issueDescription,
+    otherIssue,
+    solution,
+    otherSolution,
+    responsiblePerson,
+    machineryType,
+    machineryCode,
+    selectedIssue,
+  ]);
 
   const fetchIssuesData = async () => {
     setLoading(true);
@@ -131,7 +162,7 @@ const IssueListPage = () => {
     let workshopList = [];
     let lineNum = null;
 
-    if (lineNumber === "Line 20.01") {
+    if (lineNumber === "Line 20.01A" || lineNumber === "Line 20.01B") {
       const teamLeaders = peopleList.teamLeaders.filter((person) =>
         person.includes("TỔ TRƯỞNG TỔ 20.01")
       );
@@ -534,7 +565,12 @@ const IssueListPage = () => {
         </DialogContent>
         <DialogActions>
           {/* <Button onClick={handleCloseEndIssueDialog}>Hủy</Button> */}
-          <Button onClick={handleConfirmEndIssue} fullWidth variant="contained">
+          <Button
+            onClick={handleConfirmEndIssue}
+            fullWidth
+            variant="contained"
+            disabled={!isFormValid}
+          >
             Xác nhận
           </Button>
         </DialogActions>
