@@ -162,7 +162,7 @@ const IssueListPage = () => {
     let workshopList = [];
     let lineNum = null;
 
-    if (lineNumber === "Line 20.01") {
+    if (lineNumber === "Line 20.01A" || lineNumber === "Line 20.01B") {
       const teamLeaders = peopleList.teamLeaders.filter((person) =>
         person.includes("TỔ TRƯỞNG TỔ 20.01")
       );

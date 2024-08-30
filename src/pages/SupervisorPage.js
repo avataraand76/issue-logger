@@ -88,7 +88,7 @@ const SupervisorPage = () => {
       const lineNumber = newValue.label;
       let teamLeaders = [];
 
-      if (lineNumber === "Line 20.01") {
+      if (lineNumber === "Line 20.01A" || lineNumber === "Line 20.01B") {
         teamLeaders = peopleList.teamLeaders.filter((leader) =>
           leader.includes("TỔ TRƯỞNG TỔ 20.01")
         );
@@ -160,7 +160,8 @@ const SupervisorPage = () => {
       value: i + 1,
       label: `Line ${i + 1}`,
     })),
-    { value: 20.01, label: "Line 20.01" },
+    { value: 20.01, label: "Line 20.01A" },
+    { value: 20.01, label: "Line 20.01B" },
     ...Array.from({ length: 26 }, (_, i) => ({
       value: i + 15,
       label: `Line ${i + 15}`,

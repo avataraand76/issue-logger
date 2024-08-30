@@ -43,7 +43,8 @@ const ReportIssuePage = () => {
       value: i + 1,
       label: `Line ${i + 1}`,
     })),
-    { value: 20.01, label: "Line 20.01" },
+    { value: 20.01, label: "Line 20.01A" },
+    { value: 20.01, label: "Line 20.01B" },
     ...Array.from({ length: 26 }, (_, i) => ({
       value: i + 15,
       label: `Line ${i + 15}`,
@@ -170,7 +171,7 @@ const ReportIssuePage = () => {
     let workshopList = [];
     let lineNum = null;
 
-    if (lineNumber === "Line 20.01") {
+    if (lineNumber === "Line 20.01A" || lineNumber === "Line 20.01B") {
       const teamLeaders = peopleList.teamLeaders.filter((person) =>
         person.includes("TỔ TRƯỞNG TỔ 20.01")
       );
