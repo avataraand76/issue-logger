@@ -21,7 +21,14 @@ import Header from "../components/Header";
 import IssueFilters from "../components/IssueFilters";
 import IssueDetails from "../components/IssueDetails";
 import { useNavigate } from "react-router-dom";
-import { format, parse, isValid, differenceInMinutes } from "date-fns";
+import {
+  format,
+  parse,
+  isValid,
+  differenceInMinutes,
+  setHours,
+  setMinutes,
+} from "date-fns";
 import LoadingAnimation from "../components/LoadingAnimation";
 import { fetchIssues, endIssue } from "../data/api";
 import AutofillPreventer from "../components/AutofillPreventer";
@@ -60,6 +67,25 @@ const IssueListPage = () => {
   const [machineryType, setMachineryType] = useState("");
   const [machineryCode, setMachineryCode] = useState(null);
   const [isFormValid, setIsFormValid] = useState(false);
+  const calculateDowntimeMinutes = (startTime, endTime) => {
+    const lunchBreakStart = setHours(setMinutes(new Date(startTime), 15), 12);
+    const lunchBreakEnd = setHours(setMinutes(new Date(startTime), 15), 13);
+
+    let downtimeMinutes = differenceInMinutes(endTime, startTime);
+
+    if (startTime < lunchBreakEnd && endTime > lunchBreakStart) {
+      const breakOverlapStart =
+        startTime < lunchBreakStart ? lunchBreakStart : startTime;
+      const breakOverlapEnd = endTime > lunchBreakEnd ? lunchBreakEnd : endTime;
+      const breakOverlapMinutes = differenceInMinutes(
+        breakOverlapEnd,
+        breakOverlapStart
+      );
+      downtimeMinutes -= breakOverlapMinutes;
+    }
+
+    return downtimeMinutes;
+  };
 
   useEffect(() => {
     fetchIssuesData();
@@ -262,7 +288,7 @@ const IssueListPage = () => {
       "HH:mm MM/dd/yyyy",
       new Date()
     );
-    const minutesDifference = differenceInMinutes(currentTime, startTime);
+    const minutesDifference = calculateDowntimeMinutes(startTime, currentTime);
 
     setSelectedIssue(issue);
     setEndTime(formattedEndTime);
