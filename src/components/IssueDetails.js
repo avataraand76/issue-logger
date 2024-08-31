@@ -50,7 +50,13 @@ const IssueDetails = ({
             }}
           >
             <ListItemText
-              primary={`${issue.lineNumber} - Trạm ${issue.stationNumber} - Vấn đề: ${issue.scope} - Người ghi nhận: ${issue.responsiblePerson}`}
+              primary={`${
+                issue.oldProductCode && issue.newProductCode
+                  ? " [CHUYỂN ĐỔI] - "
+                  : ""
+              } ${issue.lineNumber} - Trạm ${issue.stationNumber} - Vấn đề: ${
+                issue.scope
+              } - Người ghi nhận: ${issue.responsiblePerson}`}
               secondary={`Thời gian bắt đầu: ${displayDate(
                 issue.submissionTime
               )}`}
@@ -76,6 +82,12 @@ const IssueDetails = ({
                   primary="Thông tin chi tiết"
                   secondary={
                     <React.Fragment>
+                      {issue.oldProductCode && issue.newProductCode && (
+                        <Typography component="span" display="block">
+                          Mã hàng cũ: [{issue.oldProductCode}] chuyển đổi sang
+                          Mã hàng mới: [{issue.newProductCode}]
+                        </Typography>
+                      )}
                       <Typography component="span" display="block">
                         Phạm vi: {issue.scope}
                       </Typography>

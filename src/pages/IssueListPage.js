@@ -426,7 +426,11 @@ const IssueListPage = () => {
         fullWidth
       >
         <DialogTitle textAlign={"center"}>
-          KẾT THÚC THỜI GIAN DOWNTIME
+          {selectedIssue &&
+          selectedIssue.oldProductCode &&
+          selectedIssue.newProductCode
+            ? "KẾT THÚC THỜI GIAN DOWNTIME - CHUYỂN ĐỔI"
+            : "KẾT THÚC THỜI GIAN DOWNTIME"}
         </DialogTitle>
         <DialogContent>
           <TextField

@@ -1,7 +1,7 @@
 // src/data/api.js
 
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbyHNDQMF1QNpGjl9Bs1xt8bHBId-dJUxJ0GVstUQ0-wMempnz3oTpWgsAOJ04v8D8DmuA/exec"; // deploy lại app script thì đổi đây version 30 22/08/2024
+  "https://script.google.com/macros/s/AKfycbyHgm5mWp2-P98csHw4ITIircnpxE8xcfnjzJzP57xWsH8Wsm9A5pLIb6b51GZ4uNT67A/exec"; // deploy lại app script thì đổi đây version 32 31/08/2024
 
 export const fetchIssues = async () => {
   try {

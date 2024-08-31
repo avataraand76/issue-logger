@@ -15,6 +15,8 @@ import {
   DialogContentText,
   IconButton,
   CircularProgress,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { useFormContext } from "../context/FormContext";
@@ -37,6 +39,9 @@ const ReportIssuePage = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [isChangeover, setIsChangeover] = useState(false);
+  const [oldProductCode, setOldProductCode] = useState("");
+  const [newProductCode, setNewProductCode] = useState("");
 
   const lineNumbers = [
     ...Array.from({ length: 12 }, (_, i) => ({
@@ -117,6 +122,12 @@ const ReportIssuePage = () => {
     }
   };
 
+  const isSubmitDisabled = () => {
+    if (!formData.responsiblePerson) return true;
+    if (isChangeover && (!oldProductCode || !newProductCode)) return true;
+    return false;
+  };
+
   const handleStationDelete = (stationToDelete) => () => {
     setSelectedStations(
       selectedStations.filter((station) => station !== stationToDelete)
@@ -137,6 +148,8 @@ const ReportIssuePage = () => {
           scope: formData.scope,
           responsiblePerson: formData.responsiblePerson,
           stationNumber,
+          oldProductCode: isChangeover ? oldProductCode : "",
+          newProductCode: isChangeover ? newProductCode : "",
         };
         const result = await addIssue(data);
         if (result.status !== "success") {
@@ -404,12 +417,43 @@ const ReportIssuePage = () => {
                 updateFormData({ responsiblePerson: newValue });
               }}
             />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={isChangeover}
+                  onChange={(e) => setIsChangeover(e.target.checked)}
+                  name="chuyenDoi"
+                  color="primary"
+                />
+              }
+              label="Chuyển đổi"
+            />
+            {isChangeover && (
+              <>
+                <TextField
+                  label="Mã hàng cũ"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  value={oldProductCode}
+                  onChange={(e) => setOldProductCode(e.target.value)}
+                />
+                <TextField
+                  label="Mã hàng mới"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  value={newProductCode}
+                  onChange={(e) => setNewProductCode(e.target.value)}
+                />
+              </>
+            )}
             <Button
               type="submit"
               variant="contained"
               color="primary"
               fullWidth
-              disabled={!formData.responsiblePerson || isLoading}
+              disabled={isSubmitDisabled() || isLoading}
               onClick={handleSubmit}
             >
               Xác nhận

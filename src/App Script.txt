@@ -1,4 +1,4 @@
-// Code.gs version 30 22/08/2024
+// Code.gs version 32 31/08/2024
 function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = JSON.parse(e.postData.contents);
@@ -17,7 +17,9 @@ function doPost(e) {
       data.problemSolver,
       data.responsiblePerson,
       "", // Empty column for endTime
-      "" // Empty column for downtime (minutes)
+      "", // Empty column for downtime (minutes)
+      data.oldProductCode || "", // Column for old product code
+      data.newProductCode || "" // Column for new product code
     ]);
 
     return ContentService.createTextOutput(JSON.stringify({status: 'success', action: 'addIssue'}))
@@ -64,7 +66,9 @@ function doGet() {
       problemSolver: data[i][8],
       responsiblePerson: data[i][9],
       endTime: data[i][10] || null,
-      downtime: data[i][11] || null // Downtime in minutes
+      downtime: data[i][11] || null, // Downtime in minutes
+      oldProductCode: data[i][12] || null,
+      newProductCode: data[i][13] || null
     });
   }
 
