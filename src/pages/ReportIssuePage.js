@@ -238,7 +238,11 @@ const ReportIssuePage = () => {
       filteredList = [...filteredList, ...teamViceLeaders];
     }
 
-    filteredList = [...filteredList, ...workshopList];
+    filteredList = [
+      ...filteredList,
+      ...peopleList.teamLineBalancing,
+      ...workshopList,
+    ];
     setFilteredPeopleList(filteredList);
   };
 
