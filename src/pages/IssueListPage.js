@@ -429,7 +429,7 @@ const IssueListPage = () => {
           {selectedIssue &&
           selectedIssue.oldProductCode &&
           selectedIssue.newProductCode
-            ? "KẾT THÚC THỜI GIAN DOWNTIME - CHUYỂN ĐỔI"
+            ? `KẾT THÚC THỜI GIAN DOWNTIME - CHUYỂN ĐỔI [${selectedIssue.oldProductCode}] -> [${selectedIssue.newProductCode}]`
             : "KẾT THÚC THỜI GIAN DOWNTIME"}
         </DialogTitle>
         <DialogContent>

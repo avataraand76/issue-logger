@@ -240,8 +240,8 @@ const ReportIssuePage = () => {
 
     filteredList = [
       ...filteredList,
-      ...peopleList.teamLineBalancing,
       ...workshopList,
+      ...peopleList.teamLineBalancing,
     ];
     setFilteredPeopleList(filteredList);
   };
