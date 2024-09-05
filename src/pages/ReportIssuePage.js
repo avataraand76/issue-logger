@@ -134,6 +134,14 @@ const ReportIssuePage = () => {
     );
   };
 
+  const handleOldProductCodeChange = (e) => {
+    setOldProductCode(e.target.value.toUpperCase());
+  };
+
+  const handleNewProductCodeChange = (e) => {
+    setNewProductCode(e.target.value.toUpperCase());
+  };
+
   const handleSubmit = async () => {
     setIsLoading(true);
 
@@ -440,7 +448,8 @@ const ReportIssuePage = () => {
                   fullWidth
                   margin="normal"
                   value={oldProductCode}
-                  onChange={(e) => setOldProductCode(e.target.value)}
+                  onChange={handleOldProductCodeChange}
+                  inputProps={{ style: { textTransform: "uppercase" } }}
                 />
                 <TextField
                   label="Mã hàng mới"
@@ -448,7 +457,8 @@ const ReportIssuePage = () => {
                   fullWidth
                   margin="normal"
                   value={newProductCode}
-                  onChange={(e) => setNewProductCode(e.target.value)}
+                  onChange={handleNewProductCodeChange}
+                  inputProps={{ style: { textTransform: "uppercase" } }}
                 />
               </>
             )}
