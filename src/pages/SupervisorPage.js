@@ -59,6 +59,7 @@ const SupervisorPage = () => {
   const [stationInput, setStationInput] = useState({ value: "", error: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [showChangeoverOnly, setshowChangeoverOnly] = useState(false);
 
   const handleOpenReportDialog = () => {
     setOpenReportDialog(true);
@@ -272,8 +273,17 @@ const SupervisorPage = () => {
       unresolved: filtered.length - resolvedIssues.length,
     });
 
-    if (showUnresolvedOnly) {
+    if (showUnresolvedOnly && showChangeoverOnly) {
+      filtered = filtered.filter(
+        (issue) =>
+          !issue.endTime && issue.oldProductCode && issue.newProductCode
+      );
+    } else if (showUnresolvedOnly) {
       filtered = filtered.filter((issue) => !issue.endTime);
+    } else if (showChangeoverOnly) {
+      filtered = filtered.filter(
+        (issue) => issue.oldProductCode && issue.newProductCode
+      );
     }
 
     if (searchTerm) {
@@ -308,11 +318,18 @@ const SupervisorPage = () => {
     }
 
     setFilteredIssues(filtered);
-  }, [issues, searchTerm, filterDate, showUnresolvedOnly]);
+  }, [issues, searchTerm, filterDate, showUnresolvedOnly, showChangeoverOnly]);
 
   useEffect(() => {
     filterIssues();
-  }, [issues, searchTerm, filterDate, showUnresolvedOnly, filterIssues]);
+  }, [
+    issues,
+    searchTerm,
+    filterDate,
+    showUnresolvedOnly,
+    showChangeoverOnly,
+    filterIssues,
+  ]);
 
   const handleBack = () => {
     navigate("/");
@@ -367,16 +384,53 @@ const SupervisorPage = () => {
               alignItems="center"
               mb={2}
             >
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={showUnresolvedOnly}
-                    onChange={(e) => setShowUnresolvedOnly(e.target.checked)}
-                    color="primary"
-                  />
-                }
-                label="Chỉ hiển thị vấn đề chưa giải quyết"
-              />
+              <Box>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={showUnresolvedOnly}
+                      onChange={(e) => setShowUnresolvedOnly(e.target.checked)}
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <Typography>
+                      Chỉ hiển thị vấn đề{" "}
+                      <span
+                        style={{
+                          color: "red",
+                          fontWeight: "bold",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        chưa giải quyết
+                      </span>
+                    </Typography>
+                  }
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={showChangeoverOnly}
+                      onChange={(e) => setshowChangeoverOnly(e.target.checked)}
+                      color="secondary"
+                    />
+                  }
+                  label={
+                    <Typography>
+                      Chỉ hiển thị vấn đề{" "}
+                      <span
+                        style={{
+                          fontWeight: "bold",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        [CHUYỂN ĐỔI]
+                      </span>
+                    </Typography>
+                  }
+                />
+              </Box>
               <Typography>
                 Tổng số vấn đề hôm nay: {todayIssuesStats.total} | Đã giải
                 quyết: {todayIssuesStats.resolved} | Chưa giải quyết:{" "}
