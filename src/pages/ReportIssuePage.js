@@ -42,6 +42,7 @@ const ReportIssuePage = () => {
   const [isChangeover, setIsChangeover] = useState(false);
   const [oldProductCode, setOldProductCode] = useState("");
   const [newProductCode, setNewProductCode] = useState("");
+  const [workshop, setWorkshop] = useState("");
 
   const lineNumbers = [
     ...Array.from({ length: 12 }, (_, i) => ({
@@ -95,6 +96,27 @@ const ReportIssuePage = () => {
       icon: <SettingsIcon />,
     },
   ];
+
+  const determineWorkshop = (lineNumber) => {
+    const lineNum = parseInt(lineNumber.replace("Line ", ""));
+    if (lineNum >= 1 && lineNum <= 10) return "Xưởng 1";
+    if ((lineNum >= 11 && lineNum <= 20) || lineNumber.includes("20.01"))
+      return "Xưởng 2";
+    if (lineNum >= 21 && lineNum <= 30) return "Xưởng 3";
+    if (
+      (lineNum >= 31 && lineNum <= 40) ||
+      (lineNumber.includes("Tổ") && lineNumber.includes("xưởng 4"))
+    )
+      return "Xưởng 4";
+    return "";
+  };
+
+  useEffect(() => {
+    if (formData.lineNumber) {
+      const newWorkshop = determineWorkshop(formData.lineNumber);
+      setWorkshop(newWorkshop);
+    }
+  }, [formData.lineNumber]);
 
   const handleScopeSelection = (selectedScope) => {
     updateFormData({ scope: selectedScope, stationNumbers: selectedStations });
@@ -158,6 +180,7 @@ const ReportIssuePage = () => {
           stationNumber,
           oldProductCode: isChangeover ? oldProductCode : "",
           newProductCode: isChangeover ? newProductCode : "",
+          workshop: workshop,
         };
         const result = await addIssue(data);
         if (result.status !== "success") {

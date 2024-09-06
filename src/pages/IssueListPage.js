@@ -384,7 +384,7 @@ const IssueListPage = () => {
         >
           Quay lại
         </Button>
-        <Typography variant="h4" gutterBottom>
+        <Typography textAlign="center" variant="h4" gutterBottom>
           DANH SÁCH VẤN ĐỀ DOWNTIME
         </Typography>
         {loading ? (

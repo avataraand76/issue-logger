@@ -371,7 +371,7 @@ const SupervisorPage = () => {
             Báo cáo
           </Button>
         </Box>
-        <Typography variant="h4" gutterBottom>
+        <Typography textAlign="center" variant="h4" gutterBottom>
           DANH SÁCH VẤN ĐỀ DOWNTIME - GIÁM SÁT
         </Typography>
         {loading ? (
