@@ -10,7 +10,13 @@ import {
   Box,
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import { format, parse, differenceInMinutes } from "date-fns";
+import {
+  format,
+  parse,
+  differenceInMinutes,
+  setHours,
+  setMinutes,
+} from "date-fns";
 
 const displayDate = (dateString) => {
   if (!dateString) return "Chưa rõ";
@@ -21,7 +27,23 @@ const displayDate = (dateString) => {
 const calculateTemporaryDowntime = (startTime) => {
   const start = parse(startTime, "HH:mm MM/dd/yyyy", new Date());
   const now = new Date();
-  return differenceInMinutes(now, start);
+
+  const lunchBreakStart = setHours(setMinutes(new Date(start), 15), 12);
+  const lunchBreakEnd = setHours(setMinutes(new Date(start), 15), 13);
+
+  let downtimeMinutes = differenceInMinutes(now, start);
+
+  if (start < lunchBreakEnd && now > lunchBreakStart) {
+    const breakOverlapStart = start < lunchBreakStart ? lunchBreakStart : start;
+    const breakOverlapEnd = now > lunchBreakEnd ? lunchBreakEnd : now;
+    const breakOverlapMinutes = differenceInMinutes(
+      breakOverlapEnd,
+      breakOverlapStart
+    );
+    downtimeMinutes -= breakOverlapMinutes;
+  }
+
+  return downtimeMinutes;
 };
 
 const IssueDetails = ({
