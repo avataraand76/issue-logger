@@ -1,6 +1,7 @@
 // src/data/api.js
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL =
+  "https://script.google.com/macros/s/AKfycbxbmDmhxhxXtNB5ptaWVZtDf_SNv_xAF02vWfaftspRA8_U85l-aB_HfCzBSxKMVqQqsA/exec"; // deploy lại app script thì đổi đây version 33 06/09/2024
 
 export const fetchIssues = async () => {
   try {
