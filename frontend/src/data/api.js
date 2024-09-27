@@ -1,11 +1,10 @@
-// src/data/api.js
+// frontend/src/data/api.js
 
-const API_URL =
-  "https://script.google.com/macros/s/AKfycbxbmDmhxhxXtNB5ptaWVZtDf_SNv_xAF02vWfaftspRA8_U85l-aB_HfCzBSxKMVqQqsA/exec"; // deploy lại app script thì đổi đây version 33 06/09/2024
+const API_URL = "http://localhost:8081"; // Thay đổi URL này thành địa chỉ của server backend của bạn
 
 export const fetchIssues = async () => {
   try {
-    const response = await fetch(API_URL);
+    const response = await fetch(`${API_URL}/issues`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -21,13 +20,14 @@ export const fetchIssues = async () => {
 };
 
 export const addIssue = async (issueData) => {
+  console.log("23", issueData);
   try {
-    const response = await fetch(API_URL, {
+    const response = await fetch(`${API_URL}/issues`, {
       method: "POST",
-      body: JSON.stringify({
-        action: "addIssue",
-        ...issueData,
-      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(issueData),
     });
     if (!response.ok) {
       throw new Error("Failed to add issue");
@@ -42,11 +42,12 @@ export const addIssue = async (issueData) => {
 
 export const endIssue = async (id, endTime, additionalData) => {
   try {
-    const response = await fetch(API_URL, {
-      method: "POST",
+    const response = await fetch(`${API_URL}/issues/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
-        action: "endIssue",
-        id,
         endTime,
         ...additionalData,
       }),

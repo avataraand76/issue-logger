@@ -1,4 +1,4 @@
-// src/pages/HomePage.js
+// frontend/src/pages/HomePage.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Button, Box } from "@mui/material";

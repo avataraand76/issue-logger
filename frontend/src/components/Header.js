@@ -1,4 +1,4 @@
-// src/components/Header.js
+// frontend/src/components/Header.js
 import React from "react";
 import { AppBar, Toolbar, Box, Container } from "@mui/material";
 import { styled } from "@mui/system";

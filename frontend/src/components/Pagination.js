@@ -1,4 +1,4 @@
-// src/components/Pagination.js
+// frontend/src/components/Pagination.js
 import React from "react";
 import { Box, Button, Typography } from "@mui/material";
 

@@ -1,4 +1,4 @@
-// src/pages/ReportIssuePage.js
+// frontend/src/pages/ReportIssuePage.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -24,11 +24,12 @@ import Header from "../components/Header";
 import AutofillPreventer from "../components/AutofillPreventer";
 import peopleList from "../data/peopleList";
 import { addIssue } from "../data/api";
-import { format } from "date-fns";
+// import { format } from "date-fns";
 import EngineeringIcon from "@mui/icons-material/Engineering";
 import PeopleIcon from "@mui/icons-material/People";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import SettingsIcon from "@mui/icons-material/Settings";
+import moment from "moment";
 
 const ReportIssuePage = () => {
   const { formData, updateFormData, resetFormData } = useFormContext();
@@ -171,9 +172,7 @@ const ReportIssuePage = () => {
       for (const stationNumber of formData.stationNumbers) {
         const data = {
           action: "addIssue",
-          submissionTime: format(new Date(), "HH:mm MM/dd/yyyy", {
-            timeZone: "Asia/Ho_Chi_Minh",
-          }),
+          submissionTime: moment().format("HH:mm MM/DD/YYYY"),
           lineNumber: formData.lineNumber,
           scope: formData.scope,
           responsiblePerson: formData.responsiblePerson,

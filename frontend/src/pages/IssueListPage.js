@@ -1,4 +1,4 @@
-// src/pages/IssueListPage.js
+// frontend/src/pages/IssueListPage.js
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Container,

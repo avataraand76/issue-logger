@@ -1,4 +1,4 @@
-// src/components/IssueDetails.js
+// frontend/src/components/IssueDetails.js
 import React from "react";
 import {
   List,
@@ -16,34 +16,54 @@ import {
   differenceInMinutes,
   setHours,
   setMinutes,
+  isValid,
 } from "date-fns";
 
 const displayDate = (dateString) => {
   if (!dateString) return "Chưa rõ";
-  const date = parse(dateString, "HH:mm MM/dd/yyyy", new Date());
-  return format(date, "HH:mm dd/MM/yyyy");
+  try {
+    const date = parse(dateString, "HH:mm MM/dd/yyyy", new Date());
+    if (!isValid(date)) {
+      console.error(`Invalid date string: ${dateString}`);
+      return "Ngày không hợp lệ";
+    }
+    return format(date, "HH:mm dd/MM/yyyy");
+  } catch (error) {
+    console.error(`Error parsing date: ${dateString}`, error);
+    return "Lỗi định dạng ngày";
+  }
 };
 
 const calculateTemporaryDowntime = (startTime) => {
-  const start = parse(startTime, "HH:mm MM/dd/yyyy", new Date());
-  const now = new Date();
+  if (!startTime) return 0;
+  try {
+    const start = parse(startTime, "HH:mm MM/dd/yyyy", new Date());
+    if (!isValid(start)) {
+      console.error(`Invalid start time: ${startTime}`);
+      return 0;
+    }
+    const now = new Date();
 
-  const lunchBreakStart = setHours(setMinutes(new Date(start), 15), 12);
-  const lunchBreakEnd = setHours(setMinutes(new Date(start), 15), 13);
+    const lunchBreakStart = setHours(setMinutes(new Date(start), 15), 12);
+    const lunchBreakEnd = setHours(setMinutes(new Date(start), 15), 13);
 
-  let downtimeMinutes = differenceInMinutes(now, start);
+    let downtimeMinutes = differenceInMinutes(now, start);
 
-  if (start < lunchBreakEnd && now > lunchBreakStart) {
-    const breakOverlapStart = start < lunchBreakStart ? lunchBreakStart : start;
-    const breakOverlapEnd = now > lunchBreakEnd ? lunchBreakEnd : now;
-    const breakOverlapMinutes = differenceInMinutes(
-      breakOverlapEnd,
-      breakOverlapStart
-    );
-    downtimeMinutes -= breakOverlapMinutes;
+    if (start < lunchBreakEnd && now > lunchBreakStart) {
+      const breakOverlapStart =
+        start < lunchBreakStart ? lunchBreakStart : start;
+      const breakOverlapEnd = now > lunchBreakEnd ? lunchBreakEnd : now;
+      const breakOverlapMinutes = differenceInMinutes(
+        breakOverlapEnd,
+        breakOverlapStart
+      );
+      downtimeMinutes -= breakOverlapMinutes;
+    }
+    return downtimeMinutes;
+  } catch (error) {
+    console.error(`Error calculating downtime: ${startTime}`, error);
+    return 0;
   }
-
-  return downtimeMinutes;
 };
 
 const IssueDetails = ({
@@ -122,7 +142,7 @@ const IssueDetails = ({
                         >
                           {`Thời gian Downtime: ${
                             issue.endTime
-                              ? `${issue.downtime} phút`
+                              ? `${issue.downtime || 0} phút`
                               : `${temporaryDowntime} phút (tạm tính)`
                           }`}
                         </Typography>

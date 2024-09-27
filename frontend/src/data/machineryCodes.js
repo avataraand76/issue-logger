@@ -1,4 +1,4 @@
-// src/data/machineryCodes.js
+// frontend/src/data/machineryCodes.js
 import machineryCodesData from "./machineryCodes.json";
 
 const machineryCodes = machineryCodesData;

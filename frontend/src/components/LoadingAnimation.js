@@ -1,4 +1,4 @@
-// src/components/LoadingAnimation.js
+// frontend/src/components/LoadingAnimation.js
 import React from "react";
 import { Box, CircularProgress, Typography } from "@mui/material";
 

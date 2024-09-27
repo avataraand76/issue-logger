@@ -1,4 +1,4 @@
-// src/pages/SupervisorPage.js
+// frontend/src/pages/SupervisorPage.js
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Container,

@@ -1,4 +1,4 @@
-// src/data/issueOptions.js
+// frontend/src/data/issueOptions.js
 import issueOptionsData from "./issueOptions.json";
 
 const issueOptions = issueOptionsData;

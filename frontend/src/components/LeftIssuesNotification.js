@@ -1,4 +1,4 @@
-// src/components/LeftIssuesNotification.js
+// frontend/src/components/LeftIssuesNotification.js
 import React, { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { keyframes } from "@mui/system";
