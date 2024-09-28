@@ -25,9 +25,9 @@ import {
   format,
   parse,
   isValid,
-  differenceInMinutes,
-  setHours,
-  setMinutes,
+  // differenceInMinutes,
+  // setHours,
+  // setMinutes,
 } from "date-fns";
 import LoadingAnimation from "../components/LoadingAnimation";
 import { fetchIssues, endIssue } from "../data/api";
@@ -39,6 +39,7 @@ import issueOptions from "../data/issueOptions";
 import solutionOptions from "../data/solutionOptions";
 import machineryCodes from "../data/machineryCodes";
 import ClearIcon from "@mui/icons-material/Clear";
+import moment from "moment";
 
 const IssueListPage = () => {
   const [issues, setIssues] = useState([]);
@@ -68,18 +69,32 @@ const IssueListPage = () => {
   const [machineryCode, setMachineryCode] = useState(null);
   const [isFormValid, setIsFormValid] = useState(false);
   const calculateDowntimeMinutes = (startTime, endTime) => {
-    const lunchBreakStart = setHours(setMinutes(new Date(startTime), 15), 12);
-    const lunchBreakEnd = setHours(setMinutes(new Date(startTime), 15), 13);
+    const start = moment(startTime, "YYYY/MM/DD HH:mm");
+    const end = moment(endTime, "YYYY/MM/DD HH:mm");
 
-    let downtimeMinutes = differenceInMinutes(endTime, startTime);
+    // Kiểm tra tính hợp lệ của thời gian
+    if (!start.isValid() || !end.isValid()) {
+      console.error("Invalid start or end time");
+      return 0;
+    }
 
-    if (startTime < lunchBreakEnd && endTime > lunchBreakStart) {
-      const breakOverlapStart =
-        startTime < lunchBreakStart ? lunchBreakStart : startTime;
-      const breakOverlapEnd = endTime > lunchBreakEnd ? lunchBreakEnd : endTime;
-      const breakOverlapMinutes = differenceInMinutes(
-        breakOverlapEnd,
-        breakOverlapStart
+    // Đảm bảo endTime luôn lớn hơn startTime
+    if (end.isBefore(start)) {
+      console.error("End time is before start time");
+      return 0;
+    }
+
+    const lunchBreakStart = moment(start).set({ hour: 12, minute: 15 });
+    const lunchBreakEnd = moment(start).set({ hour: 13, minute: 15 });
+
+    let downtimeMinutes = end.diff(start, "minutes");
+
+    if (start.isBefore(lunchBreakEnd) && end.isAfter(lunchBreakStart)) {
+      const breakOverlapStart = moment.max(start, lunchBreakStart);
+      const breakOverlapEnd = moment.min(end, lunchBreakEnd);
+      const breakOverlapMinutes = breakOverlapEnd.diff(
+        breakOverlapStart,
+        "minutes"
       );
       downtimeMinutes -= breakOverlapMinutes;
     }
@@ -279,21 +294,24 @@ const IssueListPage = () => {
   }, [selectedIssue, filterPeopleList, filterIssueOptions]);
 
   const handleEndIssue = (issue) => {
-    const currentTime = new Date();
-    const formattedEndTime = format(currentTime, "HH:mm MM/dd/yyyy", {
-      timeZone: "Asia/Ho_Chi_Minh",
-    });
-    const startTime = parse(
-      issue.submissionTime,
-      "HH:mm MM/dd/yyyy",
-      new Date()
-    );
+    const currentTime = moment();
+    const formattedEndTime = currentTime.format("YYYY/MM/DD HH:mm");
+    const startTime = moment(issue.submissionTime, "YYYY/MM/DD HH:mm");
     const minutesDifference = calculateDowntimeMinutes(startTime, currentTime);
 
     setSelectedIssue(issue);
     setEndTime(formattedEndTime);
     setDowntimeMinutes(minutesDifference);
     setOpenEndIssueDialog(true);
+
+    // Reset form fields
+    setIssueDescription("");
+    setSolution("");
+    setResponsiblePerson("");
+    setOtherIssue("");
+    setOtherSolution("");
+    setMachineryType("");
+    setMachineryCode(null);
   };
 
   const handleCloseEndIssueDialog = () => {
@@ -330,6 +348,7 @@ const IssueListPage = () => {
         solution: finalSolution,
         problemSolver: responsiblePerson,
         responsiblePerson: selectedIssue.problemSolver, // Giữ nguyên người ghi nhận ban đầu
+        submissionTime: selectedIssue.submissionTime, // Add this line to send the start time
       });
 
       if (result.status === "success") {

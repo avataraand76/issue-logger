@@ -10,60 +10,57 @@ import {
   Box,
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import {
-  format,
-  parse,
-  differenceInMinutes,
-  setHours,
-  setMinutes,
-  isValid,
-} from "date-fns";
+// import moment from "moment";
+const moment = require("moment-timezone");
 
 const displayDate = (dateString) => {
   if (!dateString) return "Chưa rõ";
   try {
-    const date = parse(dateString, "HH:mm MM/dd/yyyy", new Date());
-    if (!isValid(date)) {
+    const date = moment.tz(dateString, "Asia/Bangkok");
+    if (!date.isValid()) {
       console.error(`Invalid date string: ${dateString}`);
       return "Ngày không hợp lệ";
     }
-    return format(date, "HH:mm dd/MM/yyyy");
+    return date.format("HH:mm DD/MM/YYYY");
   } catch (error) {
     console.error(`Error parsing date: ${dateString}`, error);
     return "Lỗi định dạng ngày";
   }
 };
 
-const calculateTemporaryDowntime = (startTime) => {
-  if (!startTime) return 0;
-  try {
-    const start = parse(startTime, "HH:mm MM/dd/yyyy", new Date());
-    if (!isValid(start)) {
-      console.error(`Invalid start time: ${startTime}`);
-      return 0;
-    }
-    const now = new Date();
+const calculateDowntimeMinutes = (startTime, endTime) => {
+  const start = moment.tz(startTime, "Asia/Bangkok");
+  const end = moment.tz(endTime, "Asia/Bangkok");
 
-    const lunchBreakStart = setHours(setMinutes(new Date(start), 15), 12);
-    const lunchBreakEnd = setHours(setMinutes(new Date(start), 15), 13);
+  // console.log("Start:", start.format("YYYY/MM/DD HH:mm"));
+  // console.log("End:", end.format("YYYY/MM/DD HH:mm"));
 
-    let downtimeMinutes = differenceInMinutes(now, start);
-
-    if (start < lunchBreakEnd && now > lunchBreakStart) {
-      const breakOverlapStart =
-        start < lunchBreakStart ? lunchBreakStart : start;
-      const breakOverlapEnd = now > lunchBreakEnd ? lunchBreakEnd : now;
-      const breakOverlapMinutes = differenceInMinutes(
-        breakOverlapEnd,
-        breakOverlapStart
-      );
-      downtimeMinutes -= breakOverlapMinutes;
-    }
-    return downtimeMinutes;
-  } catch (error) {
-    console.error(`Error calculating downtime: ${startTime}`, error);
+  if (!start.isValid() || !end.isValid()) {
+    console.error("Invalid start or end time");
     return 0;
   }
+
+  if (end.isBefore(start)) {
+    console.error("End time is before start time");
+    return 0;
+  }
+
+  const lunchBreakStart = moment(start).set({ hour: 12, minute: 15 });
+  const lunchBreakEnd = moment(start).set({ hour: 13, minute: 15 });
+
+  let downtimeMinutes = end.diff(start, "minutes");
+
+  if (start.isBefore(lunchBreakEnd) && end.isAfter(lunchBreakStart)) {
+    const breakOverlapStart = moment.max(start, lunchBreakStart);
+    const breakOverlapEnd = moment.min(end, lunchBreakEnd);
+    const breakOverlapMinutes = breakOverlapEnd.diff(
+      breakOverlapStart,
+      "minutes"
+    );
+    downtimeMinutes -= breakOverlapMinutes;
+  }
+
+  return downtimeMinutes;
 };
 
 const IssueDetails = ({
@@ -77,9 +74,10 @@ const IssueDetails = ({
   return (
     <List>
       {filteredIssues.map((issue) => {
-        const temporaryDowntime = !issue.endTime
-          ? calculateTemporaryDowntime(issue.submissionTime)
-          : null;
+        const downtimeMinutes = calculateDowntimeMinutes(
+          issue.submissionTime,
+          issue.endTime
+        );
 
         return (
           <Box
@@ -89,7 +87,7 @@ const IssueDetails = ({
                 ? issue.endTime
                   ? "#e8f5e9"
                   : "#ffebee"
-                : "transparent", // Chỉ áp dụng màu nền nếu là trang Supervisor
+                : "transparent",
               borderRadius: "4px",
               mb: 1,
               overflow: "hidden",
@@ -140,10 +138,8 @@ const IssueDetails = ({
                           display="block"
                           variant="body2"
                         >
-                          {`Thời gian Downtime: ${
-                            issue.endTime
-                              ? `${issue.downtime || 0} phút`
-                              : `${temporaryDowntime} phút (tạm tính)`
+                          {`Thời gian Downtime: ${downtimeMinutes} phút ${
+                            issue.endTime ? "" : "(tạm tính)"
                           }`}
                         </Typography>
                       </React.Fragment>

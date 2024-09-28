@@ -172,7 +172,7 @@ const ReportIssuePage = () => {
       for (const stationNumber of formData.stationNumbers) {
         const data = {
           action: "addIssue",
-          submissionTime: moment().format("HH:mm MM/DD/YYYY"),
+          submissionTime: moment().format("YYYY/MM/DD HH:mm"),
           lineNumber: formData.lineNumber,
           scope: formData.scope,
           responsiblePerson: formData.responsiblePerson,

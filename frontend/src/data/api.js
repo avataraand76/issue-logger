@@ -12,6 +12,7 @@ export const fetchIssues = async () => {
     if (!Array.isArray(data)) {
       throw new Error("Data is not in expected format");
     }
+    console.log("res", data);
     return data;
   } catch (error) {
     console.error("Error fetching issues:", error);

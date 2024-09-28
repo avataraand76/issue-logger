@@ -2,6 +2,7 @@
 const express = require("express");
 const mysql = require("mysql");
 const cors = require("cors");
+const moment = require("moment");
 
 const app = express();
 app.use(cors());
@@ -53,7 +54,7 @@ app.post("/issues", (req, res) => {
     workshop,
   } = req.body;
   const sql =
-    "INSERT INTO issues (submissionTime, lineNumber, stationNumber, scope, machineryType, machineryCode, issue, solution, problemSolver, responsiblePerson, oldProductCode, newProductCode, workshop) VALUES (STR_TO_DATE(?, '%H:%i %m/%d/%Y'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO issues (submissionTime, lineNumber, stationNumber, scope, machineryType, machineryCode, issue, solution, problemSolver, responsiblePerson, oldProductCode, newProductCode, workshop) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   db.query(
     sql,
     [
@@ -86,23 +87,44 @@ app.post("/issues", (req, res) => {
 // End issue
 app.put("/issues/:id", (req, res) => {
   const { id } = req.params;
-  // console.log(req.params);
+  console.log(req.body);
   const {
     endTime,
-    downtimeMinutes,
     machineryType,
     machineryCode,
     issue,
     solution,
     problemSolver,
+    submissionTime,
   } = req.body;
+
+  const startTime = moment(submissionTime, "YYYY/MM/DD HH:mm");
+  const endTimeMoment = moment(endTime, "YYYY/MM/DD HH:mm");
+  const lunchBreakStart = moment(startTime).set({ hour: 12, minute: 15 });
+  const lunchBreakEnd = moment(startTime).set({ hour: 13, minute: 15 });
+
+  let calculatedDowntimeMinutes = endTimeMoment.diff(startTime, "minutes");
+
+  if (
+    startTime.isBefore(lunchBreakEnd) &&
+    endTimeMoment.isAfter(lunchBreakStart)
+  ) {
+    const breakOverlapStart = moment.max(startTime, lunchBreakStart);
+    const breakOverlapEnd = moment.min(endTimeMoment, lunchBreakEnd);
+    const breakOverlapMinutes = breakOverlapEnd.diff(
+      breakOverlapStart,
+      "minutes"
+    );
+    calculatedDowntimeMinutes -= breakOverlapMinutes;
+  }
+
   const sql =
     "UPDATE issues SET endTime = ?, downtimeMinutes = ?, machineryType = ?, machineryCode = ?, issue = ?, solution = ?, problemSolver = ? WHERE id = ?";
   db.query(
     sql,
     [
       endTime,
-      downtimeMinutes,
+      calculatedDowntimeMinutes,
       machineryType,
       machineryCode,
       issue,
@@ -118,7 +140,10 @@ app.put("/issues/:id", (req, res) => {
       if (result.affectedRows === 0) {
         return res.status(404).json({ error: "Issue not found" });
       }
-      res.json({ message: "Issue ended successfully" });
+      res.json({
+        message: "Issue ended successfully",
+        downtimeMinutes: calculatedDowntimeMinutes,
+      });
     }
   );
 });
