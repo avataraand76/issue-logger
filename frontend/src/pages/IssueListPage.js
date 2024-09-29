@@ -21,14 +21,7 @@ import Header from "../components/Header";
 import IssueFilters from "../components/IssueFilters";
 import IssueDetails from "../components/IssueDetails";
 import { useNavigate } from "react-router-dom";
-import {
-  format,
-  parse,
-  isValid,
-  // differenceInMinutes,
-  // setHours,
-  // setMinutes,
-} from "date-fns";
+import { format, parse, isValid } from "date-fns";
 import LoadingAnimation from "../components/LoadingAnimation";
 import { fetchIssues, endIssue } from "../data/api";
 import AutofillPreventer from "../components/AutofillPreventer";
@@ -39,7 +32,7 @@ import issueOptions from "../data/issueOptions";
 import solutionOptions from "../data/solutionOptions";
 import machineryCodes from "../data/machineryCodes";
 import ClearIcon from "@mui/icons-material/Clear";
-import moment from "moment";
+import moment from "moment-timezone";
 
 const IssueListPage = () => {
   const [issues, setIssues] = useState([]);
@@ -69,8 +62,8 @@ const IssueListPage = () => {
   const [machineryCode, setMachineryCode] = useState(null);
   const [isFormValid, setIsFormValid] = useState(false);
   const calculateDowntimeMinutes = (startTime, endTime) => {
-    const start = moment(startTime, "YYYY/MM/DD HH:mm");
-    const end = moment(endTime, "YYYY/MM/DD HH:mm");
+    const start = moment.tz(startTime, "Asia/Bangkok");
+    const end = moment.tz(endTime, "Asia/Bangkok");
 
     // Kiểm tra tính hợp lệ của thời gian
     if (!start.isValid() || !end.isValid()) {
@@ -84,8 +77,12 @@ const IssueListPage = () => {
       return 0;
     }
 
-    const lunchBreakStart = moment(start).set({ hour: 12, minute: 15 });
-    const lunchBreakEnd = moment(start).set({ hour: 13, minute: 15 });
+    const lunchBreakStart = moment(start)
+      .tz("Asia/Bangkok")
+      .set({ hour: 12, minute: 15 });
+    const lunchBreakEnd = moment(start)
+      .tz("Asia/Bangkok")
+      .set({ hour: 13, minute: 15 });
 
     let downtimeMinutes = end.diff(start, "minutes");
 
@@ -294,9 +291,9 @@ const IssueListPage = () => {
   }, [selectedIssue, filterPeopleList, filterIssueOptions]);
 
   const handleEndIssue = (issue) => {
-    const currentTime = moment();
-    const formattedEndTime = currentTime.format("YYYY/MM/DD HH:mm");
-    const startTime = moment(issue.submissionTime, "YYYY/MM/DD HH:mm");
+    const currentTime = moment().tz("Asia/Bangkok");
+    const formattedEndTime = currentTime.format("YYYY-MM-DD HH:mm");
+    const startTime = moment.tz(issue.submissionTime, "Asia/Bangkok");
     const minutesDifference = calculateDowntimeMinutes(startTime, currentTime);
 
     setSelectedIssue(issue);
@@ -331,11 +328,14 @@ const IssueListPage = () => {
   const handleConfirmEndIssue = async () => {
     setIsLoading(true);
     try {
+      const endTimeBangkok = moment
+        .tz(endTime, "Asia/Bangkok")
+        .format("YYYY-MM-DD HH:mm");
       const finalIssueDescription =
         issueDescription === "Khác" ? `Khác - ${otherIssue}` : issueDescription;
       const finalSolution =
         solution === "Khác" ? `Khác - ${otherSolution}` : solution;
-      const result = await endIssue(selectedIssue.id, endTime, {
+      const result = await endIssue(selectedIssue.id, endTimeBangkok, {
         downtimeMinutes,
         machineryType: selectedIssue.scope === "Máy móc" ? machineryType : "",
         machineryCode:

@@ -29,7 +29,7 @@ import EngineeringIcon from "@mui/icons-material/Engineering";
 import PeopleIcon from "@mui/icons-material/People";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import SettingsIcon from "@mui/icons-material/Settings";
-import moment from "moment";
+import moment from "moment-timezone";
 
 const ReportIssuePage = () => {
   const { formData, updateFormData, resetFormData } = useFormContext();
@@ -172,7 +172,9 @@ const ReportIssuePage = () => {
       for (const stationNumber of formData.stationNumbers) {
         const data = {
           action: "addIssue",
-          submissionTime: moment().format("YYYY/MM/DD HH:mm"),
+          submissionTime: moment()
+            .tz("Asia/Bangkok")
+            .format("YYYY-MM-DD HH:mm"),
           lineNumber: formData.lineNumber,
           scope: formData.scope,
           responsiblePerson: formData.responsiblePerson,

@@ -2,7 +2,7 @@
 const express = require("express");
 const mysql = require("mysql");
 const cors = require("cors");
-const moment = require("moment");
+const moment = require("moment-timezone");
 
 const app = express();
 app.use(cors());
@@ -53,6 +53,9 @@ app.post("/issues", (req, res) => {
     newProductCode,
     workshop,
   } = req.body;
+  const bangkokSubmissionTime = moment
+    .tz(submissionTime, "Asia/Bangkok")
+    .format("YYYY-MM-DD HH:mm");
   const sql =
     "INSERT INTO issues (submissionTime, lineNumber, stationNumber, scope, machineryType, machineryCode, issue, solution, problemSolver, responsiblePerson, oldProductCode, newProductCode, workshop) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   db.query(
@@ -98,19 +101,23 @@ app.put("/issues/:id", (req, res) => {
     submissionTime,
   } = req.body;
 
-  const startTime = moment(submissionTime, "YYYY/MM/DD HH:mm");
-  const endTimeMoment = moment(endTime, "YYYY/MM/DD HH:mm");
+  // Convert endTime to Bangkok timezone
+  const endTimeBangkok = moment.tz(endTime, "Asia/Bangkok");
+
+  // Convert submissionTime to Bangkok timezone
+  const startTimeBangkok = moment.tz(submissionTime, "Asia/Bangkok");
+  const endTimeMoment = moment.tz(endTime, "Asia/Bangkok");
   const lunchBreakStart = moment(startTime).set({ hour: 12, minute: 15 });
   const lunchBreakEnd = moment(startTime).set({ hour: 13, minute: 15 });
 
   let calculatedDowntimeMinutes = endTimeMoment.diff(startTime, "minutes");
 
   if (
-    startTime.isBefore(lunchBreakEnd) &&
-    endTimeMoment.isAfter(lunchBreakStart)
+    startTimeBangkok.isBefore(lunchBreakEnd) &&
+    endTimeBangkok.isAfter(lunchBreakStart)
   ) {
-    const breakOverlapStart = moment.max(startTime, lunchBreakStart);
-    const breakOverlapEnd = moment.min(endTimeMoment, lunchBreakEnd);
+    const breakOverlapStart = moment.max(startTimeBangkok, lunchBreakStart);
+    const breakOverlapEnd = moment.min(endTimeBangkok, lunchBreakEnd);
     const breakOverlapMinutes = breakOverlapEnd.diff(
       breakOverlapStart,
       "minutes"
@@ -123,7 +130,7 @@ app.put("/issues/:id", (req, res) => {
   db.query(
     sql,
     [
-      endTime,
+      endTimeMoment.format("YYYY-MM-DD HH:mm"),
       calculatedDowntimeMinutes,
       machineryType,
       machineryCode,

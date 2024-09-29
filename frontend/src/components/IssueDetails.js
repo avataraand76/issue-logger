@@ -10,8 +10,7 @@ import {
   Box,
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-// import moment from "moment";
-const moment = require("moment-timezone");
+import moment from "moment-timezone";
 
 const displayDate = (dateString) => {
   if (!dateString) return "Chưa rõ";
@@ -32,9 +31,6 @@ const calculateDowntimeMinutes = (startTime, endTime) => {
   const start = moment.tz(startTime, "Asia/Bangkok");
   const end = moment.tz(endTime, "Asia/Bangkok");
 
-  // console.log("Start:", start.format("YYYY/MM/DD HH:mm"));
-  // console.log("End:", end.format("YYYY/MM/DD HH:mm"));
-
   if (!start.isValid() || !end.isValid()) {
     console.error("Invalid start or end time");
     return 0;
@@ -45,8 +41,12 @@ const calculateDowntimeMinutes = (startTime, endTime) => {
     return 0;
   }
 
-  const lunchBreakStart = moment(start).set({ hour: 12, minute: 15 });
-  const lunchBreakEnd = moment(start).set({ hour: 13, minute: 15 });
+  const lunchBreakStart = moment(start)
+    .tz("Asia/Bangkok")
+    .set({ hour: 12, minute: 15 });
+  const lunchBreakEnd = moment(start)
+    .tz("Asia/Bangkok")
+    .set({ hour: 13, minute: 15 });
 
   let downtimeMinutes = end.diff(start, "minutes");
 

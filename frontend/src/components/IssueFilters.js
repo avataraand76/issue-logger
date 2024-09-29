@@ -1,10 +1,10 @@
 // frontend/src/components/IssueFilters.js
 import React from "react";
 import { Box, TextField, Button } from "@mui/material";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
-import { isValid } from "date-fns";
-import vi from "date-fns/locale/vi";
+import moment from "moment-timezone";
+import "moment/locale/vi";
 import AutofillPreventer from "../components/AutofillPreventer";
 
 const IssueFilters = ({
@@ -14,7 +14,7 @@ const IssueFilters = ({
   setFilterDate,
 }) => {
   const setTodayDate = () => {
-    setFilterDate(new Date());
+    setFilterDate(moment().tz("Asia/Bangkok"));
   };
 
   const clearDate = () => {
@@ -41,13 +41,13 @@ const IssueFilters = ({
           />
         </Box>
         <Box mb={2} display="flex" alignItems="center">
-          <LocalizationProvider dateAdapter={AdapterDateFns} locale={vi}>
+          <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale="vi">
             <DatePicker
               label="Lọc theo ngày"
               value={filterDate}
               onChange={(newValue) => {
-                if (isValid(newValue)) {
-                  setFilterDate(newValue);
+                if (newValue && newValue.isValid()) {
+                  setFilterDate(newValue.tz("Asia/Bangkok"));
                 }
               }}
               renderInput={(params) => (
@@ -63,7 +63,7 @@ const IssueFilters = ({
                   }}
                 />
               )}
-              inputFormat="dd/MM/yyyy"
+              inputFormat="DD/MM/YYYY"
             />
           </LocalizationProvider>
           <Button
