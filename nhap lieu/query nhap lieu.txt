@@ -1,0 +1,107 @@
+INSERT INTO tb_category (name_category) VALUES
+("MÁY MÓC"), -- ID 1
+("CON NGƯỜI"), -- ID 2
+("NGUYÊN PHỤ LIỆU"), -- ID 3
+("PHƯƠNG PHÁP"); -- ID 4
+
+INSERT INTO tb_issue (id_category, name_issue) VALUES
+("1","MÁY NỖI CHỈ"),
+("1","MÁY GÃY KIM"),
+("1","MÁY KHÔNG CẮT CHỈ"),
+("1","MÁY MAY KHÔNG ĐẠT TIÊU CHUẨN CHẤT LƯỢNG (NHĂN, VẶN XẾP LY, LÙA....)"),
+("1","MÁY HƯ BÀN LỪA/CHÂN VỊT/CÁC BỘ PHẬN KHÁC CỦA MÁY...."),
+("1","MÁY BỊ SỰ CỐ KHÔNG HOẠT ĐỘNG"),
+("1","MÁY HƯ DÂY Ổ CẮM"),
+("1","LỖI PHẦN MỀM"),
+("1","MÁY HƯ DAO"),
+("1","MÁY HƯ LINH KIỆN"),
+("1","MÁY CHƯA ĐƯỢC CHUẨN BỊ"),
+("1","MÁY CÒN SỬ DỤNG MAY MÃ HÀNG CŨ"),
+("1","RẬP BỊ HƯ"),
+("1","CỬ GẮN SAI"),
+("1","MÁY BỎ MŨI"),
+("1","MÁY LỎNG CHỈ"),
+("1","BÀN ỦI THIẾU HƠI"),
+("1","BÀN ỦI RA NƯỚC"),
+("1","MÁY HƯ BÀN ĐẠP"),
+("1","THAY ĐỔI CỰ LY MÁY"),
+("1","MÁY MAY BỂ VẢI"),
+("1","MÁY RỐI CHỈ"),
+("1","MAY KHÔNG ÔM BỜ"),
+("1","MÍ KHÔNG ĐỀU"),
+("1","MÁY KHÔNG CÓ ĐIỆN"),
+("2","THỰC HIỆN KHÔNG ĐÚNG THAO TÁC"),
+("2","KHÔNG ĐẠT CHẤT LƯỢNG"),
+("2","CỬ GÁ LẮP GẮN KHÔNG ĐÚNG TIÊU CHUẨN"),
+("2","CÁC THÔNG SỐ THIẾT LẬP MÁY MÓC KHÔNG ĐẠT CHẤT LƯỢNG"),
+("2","CÔNG NHÂN NGHỈ PHÉP"),
+("2","CÔNG NHÂN MỚI"),
+("2","CÔNG NHÂN CHỜ CÔNG ĐOẠN TRƯỚC"),
+("2","CÔNG NHÂN CHỜ MÁY MÓC THIẾT BỊ"),
+("2","CÔNG NHÂN TỰ CHỈNH MÁY"),
+("2","CHỜ KỸ THUẬT CHỈNH"),
+("2","CÔNG NHÂN NGHỈ ĐỘT XUẤT"),
+("2","CÔNG NHÂN NẰM PHÒNG Y TẾ"),
+("3","NPL CUNG CẤP KHÔNG KỊP THỜI"),
+("3","NPL, BTP CẤP SAI"),
+("3","BTP KHÁC MÀU"),
+("3","BTP KHÔNG ĐẠT CHẤT LƯỢNG"),
+("3","HÀNG THÊU VỀ KHÔNG KỊP"),
+("3","HÀNG IN VỀ KHÔNG KỊP"),
+("3","HÀNG IN KHÔNG ĐẠT CHẤT LƯỢNG"),
+("3","CẮT GIAO BTP KHÔNG KỊP"),
+("4","QUY TRÌNH KHÔNG PHÙ HỢP"),
+("4","CHƯA CÓ QUY TRÌNH"),
+("4","CHƯA CHUẨN HOÁ THAO TÁC"),
+("4","KHÔNG CÓ HƯỚNG DẪN SỬ DỤNG"),
+("4","THỰC HIỆN KHÔNG ĐÚNG QUY TRÌNH"),
+("4","THIẾU  TIÊU CHUẨN");
+
+INSERT INTO tb_solution (id_category, name_solution) VALUES
+("1","CƠ ĐIỆN SỬA MÁY TẠI CHỖ"),
+("1","ĐỔI MÁY DỰ PHÒNG"),
+("1","KỸ THUẬT ĐIỀU CHỈNH"),
+("1","NHỜ MÁY CHUYỀN KHÁC TẠM THỜI"),
+("1","SẮP XẾP NGƯỜI HỖ TRỢ"),
+("1","THÔNG TIN CHO QUẢN LÝ"),
+("2","KỸ THUẬT HƯỚNG DẪN THAO TÁC"),
+("2","KỸ THUẬT CHỈNH CỬ, GÁ LẮP"),
+("2","KỸ THUẬT THIẾT LẬP LẠI CÁC THÔNG SỐ CỦA MÁY"),
+("2","KỸ THUẬT CHỈNH DÁN CHÂN VỊT/ DÁN CỬ..."),
+("2","KỸ THUẬT CHỈNH LẠI MÁY"),
+("2","SẮP XẾP NGƯỜI HỖ TRỢ"),
+("2","KỸ THUẬT HƯỚNG DẪN VÀ SẮP XẾP NGƯỜI HỖ TRỢ"),
+("2","HƯỚNG DẪN VÀ YÊU CẦU KIỂM TRA CHẤT LƯỢNG TẠI NGUỒN"),
+("2","THIẾT LẬP MÁY TRƯỚC KHI CHUYỂN ĐỔI"),
+("2","ĐÀO TẠO, HƯỚNG DẪN CHO CÔNG NHÂN"),
+("2","CHỜ CÔNG ĐOẠN TRƯỚC"),
+("2","SỬA HÀNG LỖI/HƯ"),
+("3","THÔNG TIN ĐẾN QUẢN LÝ CÁC KHU VỰC LIÊN QUAN"),
+("3","CẤP BỔ SUNG"),
+("3","ĐỔI LẠI NPL KHÁC"),
+("3","ĐIỀU TIẾT, HỖ TRỢ CHO CÔNG ĐOẠN"),
+("4","ĐIỀU CHỈNH LẠI QUY TRÌNH"),
+("4","BỔ SUNG CÁC QUY TRÌNH"),
+("4","HƯỚNG DẪN CHUẨN HOÁ THAO TÁC"),
+("4","BỔ SUNG HƯỚNG DẪN, TRỰC QUAN"),
+("4","HỌP TRIỂN KHAI LẠI"),
+("4","ÁP DỤNG QUY TRÌNH MỚI");
+
+INSERT INTO tb_machinery_category (name_machinery_category) VALUES
+("THIẾT BỊ MAY"), -- ID 1
+("THIẾT BỊ CHUYÊN DÙNG"), -- ID 2
+("CÔNG CỤ THIẾT BỊ"); -- ID 3
+
+INSERT INTO tb_workshop (name_workshop) VALUES
+("XƯỞNG 1"), -- ID 1
+("XƯỞNG 2"), -- ID 2
+("XƯỞNG 3"), -- ID 3
+("XƯỞNG 4"); -- ID 4
+
+INSERT INTO tb_employee_group (name_employee_group) VALUES
+("TỔ TRƯỞNG"), -- ID 1
+("TỔ PHÓ"), -- ID 2
+("NHÂN VIÊN SƠ ĐỒ CHUYỀN"), -- ID 3
+("NHÓM GIÁM SÁT"), -- ID 4
+("CƠ ĐIỆN XƯỞNG"), -- ID 5
+("KỸ THUẬT XƯỞNG"); -- ID 6

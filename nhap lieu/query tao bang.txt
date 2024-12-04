@@ -1,0 +1,75 @@
+CREATE TABLE tb_category (
+    id_category BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name_category VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE tb_issue (
+    id_issue BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id_category BIGINT,
+    name_issue VARCHAR(255) NOT NULL,
+    FOREIGN KEY (id_category) REFERENCES tb_category(id_category)
+);
+
+CREATE TABLE tb_solution (
+    id_solution BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id_category BIGINT,
+    name_solution VARCHAR(255) NOT NULL,
+    FOREIGN KEY (id_category) REFERENCES tb_category(id_category)
+);
+
+CREATE TABLE tb_machinery_category (
+    id_machinery_category BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name_machinery_category VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE tb_machinery (
+    id_machinery BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id_machinery_category BIGINT,
+    code_machinery VARCHAR(10) NOT NULL,
+    name_machinery VARCHAR(100) NOT NULL,
+    FOREIGN KEY (id_machinery_category) REFERENCES tb_machinery_category(id_machinery_category)
+);
+
+CREATE TABLE tb_workshop (
+    id_workshop BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name_workshop VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE tb_employee_group (
+    id_employee_group BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name_employee_group VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE tb_employee (
+    id_employee BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id_workshop BIGINT,
+    id_employee_group BIGINT,
+    full_name VARCHAR(100) NOT NULL,
+    position VARCHAR(100) NOT NULL,
+    FOREIGN KEY (id_workshop) REFERENCES tb_workshop(id_workshop),
+    FOREIGN KEY (id_employee_group) REFERENCES tb_employee_group(id_employee_group)
+);
+
+CREATE TABLE tb_logged_issue (
+    id_logged_issue BIGINT PRIMARY KEY AUTO_INCREMENT,
+    submission_time DATETIME NOT NULL,
+    line_number TEXT NOT NULL,
+    station_number TEXT NOT NULL,
+    id_category BIGINT,
+    machinery_type TEXT,
+    machinery_code TEXT,
+    issue_description TEXT,
+    solution_description TEXT,
+    problem_solver TEXT,
+    responsible_person TEXT NOT NULL,
+    end_time DATETIME,
+    downtime_minutes INT,
+    old_product_code VARCHAR(50),
+    new_product_code VARCHAR(50),
+    workshop ENUM('XƯỞNG 1', 'XƯỞNG 2', 'XƯỞNG 3', 'XƯỞNG 4') NOT NULL,
+	factory ENUM('XÍ NGHIỆP 1', 'XÍ NGHIỆP 2') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	status_logged_issue ENUM('pending', 'resolved') DEFAULT 'pending',
+	FOREIGN KEY (id_category) REFERENCES tb_category(id_category)
+);
