@@ -21,7 +21,7 @@ import {
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { useFormContext } from "../context/FormContext";
 import Header from "../components/Header";
-import { addIssue, fetchEmployees } from "../data/api";
+import { addIssue, fetchEmployees, fetchLines } from "../data/api";
 import { format } from "date-fns";
 import EngineeringIcon from "@mui/icons-material/Engineering";
 import PeopleIcon from "@mui/icons-material/People";
@@ -40,23 +40,7 @@ const ReportIssuePage = () => {
   const [isChangeover, setIsChangeover] = useState(false);
   const [oldProductCode, setOldProductCode] = useState("");
   const [newProductCode, setNewProductCode] = useState("");
-  const [workshop, setWorkshop] = useState("");
-
-  const lineNumbers = [
-    ...Array.from({ length: 12 }, (_, i) => ({
-      value: i + 1,
-      label: `Line ${i + 1}`,
-    })),
-    { value: 20.01, label: "Line 20.01A" },
-    { value: 20.01, label: "Line 20.01B" },
-    ...Array.from({ length: 26 }, (_, i) => ({
-      value: i + 15,
-      label: `Line ${i + 15}`,
-    })),
-    { value: 41, label: "Tổ hoàn thành 1 - xưởng 4" },
-    { value: 42, label: "Tổ hoàn thành 2 - xưởng 4" },
-    { value: 43, label: "Tổ chi tiết - xưởng 4" },
-  ];
+  const [lineNumbers, setLineNumbers] = useState([]);
 
   const stationNumbers = [
     ...Array.from({ length: 80 }, (_, i) => ({
@@ -95,37 +79,23 @@ const ReportIssuePage = () => {
     },
   ];
 
-  const determineWorkshop = (lineNumber) => {
-    const lineNum = parseInt(lineNumber.replace("Line ", ""));
-    if (lineNum >= 1 && lineNum <= 10) return "Xưởng 1";
-    if ((lineNum >= 11 && lineNum <= 20) || lineNumber.includes("20.01"))
-      return "Xưởng 2";
-    if (lineNum >= 21 && lineNum <= 30) return "Xưởng 3";
-    if (
-      (lineNum >= 31 && lineNum <= 40) ||
-      (lineNumber.includes("Tổ") && lineNumber.includes("xưởng 4"))
-    )
-      return "Xưởng 4";
-    return "";
-  };
-
-  const determineFactory = (lineNumber) => {
-    const lineNum = parseInt(lineNumber.replace("Line ", ""));
-    if (
-      (lineNum >= 31 && lineNum <= 40) ||
-      (lineNumber.includes("Tổ") && lineNumber.includes("xưởng 4"))
-    ) {
-      return "XÍ NGHIỆP 2";
-    }
-    return "XÍ NGHIỆP 1";
-  };
-
   useEffect(() => {
-    if (formData.lineNumber) {
-      const newWorkshop = determineWorkshop(formData.lineNumber);
-      setWorkshop(newWorkshop);
-    }
-  }, [formData.lineNumber]);
+    const loadLines = async () => {
+      try {
+        const lines = await fetchLines();
+        const formattedLines = lines.map((line) => ({
+          value: line.id_line,
+          label: line.name_line,
+          id_workshop: line.id_workshop,
+        }));
+        setLineNumbers(formattedLines);
+      } catch (error) {
+        console.error("Error loading lines:", error);
+      }
+    };
+
+    loadLines();
+  }, []);
 
   const handleScopeSelection = (selectedScope) => {
     updateFormData({ scope: selectedScope, stationNumbers: selectedStations });
@@ -186,8 +156,6 @@ const ReportIssuePage = () => {
           responsiblePerson: formData.responsiblePerson,
           oldProductCode: isChangeover ? oldProductCode : null,
           newProductCode: isChangeover ? newProductCode : null,
-          workshop: workshop.toUpperCase(),
-          factory: determineFactory(formData.lineNumber),
           status_logged_issue: "pending",
         };
 
@@ -221,30 +189,11 @@ const ReportIssuePage = () => {
     }
 
     try {
-      let workshopId;
+      const line = lineNumbers.find((l) => l.label === lineNumber);
 
-      // Xác định workshop ID dựa trên line number
-      if (lineNumber.includes("Line")) {
-        const lineNum = parseInt(lineNumber.replace("Line ", ""));
-
-        if (lineNum >= 1 && lineNum <= 10) {
-          workshopId = 1;
-        } else if (
-          (lineNum >= 11 && lineNum <= 20) ||
-          lineNumber.includes("20.01")
-        ) {
-          workshopId = 2;
-        } else if (lineNum >= 21 && lineNum <= 30) {
-          workshopId = 3;
-        } else if (lineNum >= 31 && lineNum <= 40) {
-          workshopId = 4;
-        }
-      } else if (lineNumber.includes("xưởng 4")) {
-        workshopId = 4;
-      }
-
-      if (workshopId) {
-        const employees = await fetchEmployees(workshopId, lineNumber);
+      if (line) {
+        // Truyền workshopId nhưng API sẽ lấy id_workshop từ tb_line
+        const employees = await fetchEmployees(line.id_workshop, lineNumber);
         setFilteredPeopleList(employees);
       } else {
         setFilteredPeopleList([]);
@@ -283,6 +232,11 @@ const ReportIssuePage = () => {
             options={lineNumbers}
             getOptionLabel={(option) => option.label}
             onChange={(event, newValue) => {
+              console.log("Selected Line Details:", {
+                id_line: newValue?.value,
+                id_workshop: newValue?.id_workshop,
+                label: newValue?.label,
+              });
               updateFormData({ lineNumber: newValue ? newValue.label : "" });
               if (newValue) {
                 filterPeopleList(newValue.label);

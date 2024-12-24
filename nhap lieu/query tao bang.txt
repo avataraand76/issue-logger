@@ -1,53 +1,55 @@
 CREATE TABLE tb_category (
     id_category BIGINT PRIMARY KEY AUTO_INCREMENT,
-    name_category VARCHAR(50) NOT NULL
+    name_category TEXT NOT NULL
 );
 
 CREATE TABLE tb_issue (
     id_issue BIGINT PRIMARY KEY AUTO_INCREMENT,
     id_category BIGINT,
-    name_issue VARCHAR(255) NOT NULL,
-    FOREIGN KEY (id_category) REFERENCES tb_category(id_category)
+    name_issue TEXT NOT NULL
 );
 
 CREATE TABLE tb_solution (
     id_solution BIGINT PRIMARY KEY AUTO_INCREMENT,
     id_category BIGINT,
-    name_solution VARCHAR(255) NOT NULL,
-    FOREIGN KEY (id_category) REFERENCES tb_category(id_category)
+    name_solution TEXT NOT NULL
 );
 
 CREATE TABLE tb_machinery_category (
     id_machinery_category BIGINT PRIMARY KEY AUTO_INCREMENT,
-    name_machinery_category VARCHAR(100) NOT NULL
+    name_machinery_category TEXT NOT NULL
 );
 
 CREATE TABLE tb_machinery (
     id_machinery BIGINT PRIMARY KEY AUTO_INCREMENT,
     id_machinery_category BIGINT,
-    code_machinery VARCHAR(10) NOT NULL,
-    name_machinery VARCHAR(100) NOT NULL,
-    FOREIGN KEY (id_machinery_category) REFERENCES tb_machinery_category(id_machinery_category)
+    code_machinery TEXT NOT NULL,
+    name_machinery TEXT NOT NULL
 );
 
 CREATE TABLE tb_workshop (
     id_workshop BIGINT PRIMARY KEY AUTO_INCREMENT,
-    name_workshop VARCHAR(50) NOT NULL
+    name_workshop TEXT NOT NULL
+);
+
+CREATE TABLE tb_line (
+    id_line BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id_workshop BIGINT,
+    name_line TEXT NOT NULL
 );
 
 CREATE TABLE tb_employee_group (
     id_employee_group BIGINT PRIMARY KEY AUTO_INCREMENT,
-    name_employee_group VARCHAR(100) NOT NULL
+    name_employee_group TEXT NOT NULL
 );
 
 CREATE TABLE tb_employee (
     id_employee BIGINT PRIMARY KEY AUTO_INCREMENT,
     id_workshop BIGINT,
+	id_line BIGINT,
     id_employee_group BIGINT,
-    full_name VARCHAR(100) NOT NULL,
-    position VARCHAR(100) NOT NULL,
-    FOREIGN KEY (id_workshop) REFERENCES tb_workshop(id_workshop),
-    FOREIGN KEY (id_employee_group) REFERENCES tb_employee_group(id_employee_group)
+    full_name TEXT NOT NULL,
+    position TEXT NOT NULL
 );
 
 CREATE TABLE tb_logged_issue (
@@ -64,12 +66,11 @@ CREATE TABLE tb_logged_issue (
     responsible_person TEXT NOT NULL,
     end_time DATETIME,
     downtime_minutes INT,
-    old_product_code VARCHAR(50),
-    new_product_code VARCHAR(50),
-    workshop ENUM('XƯỞNG 1', 'XƯỞNG 2', 'XƯỞNG 3', 'XƯỞNG 4') NOT NULL,
-	factory ENUM('XÍ NGHIỆP 1', 'XÍ NGHIỆP 2') NOT NULL,
+    old_product_code TEXT,
+    new_product_code TEXT,
+    workshop TEXT NOT NULL,
+	factory TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	status_logged_issue ENUM('pending', 'resolved') DEFAULT 'pending',
-	FOREIGN KEY (id_category) REFERENCES tb_category(id_category)
+	status_logged_issue ENUM('pending', 'resolved') DEFAULT 'pending'
 );

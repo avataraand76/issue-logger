@@ -74,12 +74,45 @@ app.post("/api/issues", async (req, res) => {
       responsiblePerson,
       oldProductCode,
       newProductCode,
-      workshop,
-      factory,
       status_logged_issue = "pending",
     } = req.body;
 
-    // Insert into database only
+    // Get line information to determine workshop and factory
+    const [lineResult] = await pool
+      .promise()
+      .query(`SELECT id_workshop FROM tb_line WHERE name_line = ?`, [
+        lineNumber,
+      ]);
+
+    if (!lineResult || lineResult.length === 0) {
+      throw new Error("Line not found");
+    }
+
+    const id_workshop = lineResult[0].id_workshop;
+
+    // Determine workshop based on id_workshop
+    let workshop;
+    switch (id_workshop) {
+      case 1:
+        workshop = "XƯỞNG 1";
+        break;
+      case 2:
+        workshop = "XƯỞNG 2";
+        break;
+      case 3:
+        workshop = "XƯỞNG 3";
+        break;
+      case 4:
+        workshop = "XƯỞNG 4";
+        break;
+      default:
+        throw new Error("Invalid workshop ID");
+    }
+
+    // Determine factory based on id_workshop
+    const factory = id_workshop === 4 ? "XÍ NGHIỆP 2" : "XÍ NGHIỆP 1";
+
+    // Insert into database
     const [result] = await pool.promise().query(
       `INSERT INTO tb_logged_issue (
         submission_time,
@@ -275,29 +308,17 @@ app.get("/api/employees/:workshopId", async (req, res) => {
     const { workshopId } = req.params;
     const { lineNumber } = req.query;
 
-    let lineCondition = "";
+    // Lấy id_line và id_workshop từ tb_line
+    const [lineResult] = await pool
+      .promise()
+      .query(`SELECT id_line, id_workshop FROM tb_line WHERE name_line = ?`, [
+        lineNumber,
+      ]);
 
-    if (lineNumber) {
-      if (lineNumber === "Tổ hoàn thành 1 - xưởng 4") {
-        lineCondition = "e.position LIKE '%TỔ HOÀN THÀNH 1 - XƯỞNG 4%'";
-      } else if (lineNumber === "Tổ hoàn thành 2 - xưởng 4") {
-        lineCondition = "e.position LIKE '%TỔ HOÀN THÀNH 2 - XƯỞNG 4%'";
-      } else if (lineNumber === "Tổ hoàn thành - xưởng 2") {
-        lineCondition = "e.position LIKE '%TỔ HOÀN THÀNH - XƯỞNG 2%'";
-      } else if (lineNumber === "Tổ chi tiết - xưởng 4") {
-        lineCondition = "e.position LIKE '%TỔ CHI TIẾT - XƯỞNG 4%'";
-      } else if (lineNumber === "Line 20") {
-        lineCondition =
-          "(e.position LIKE '%TỔ 20%' OR e.position LIKE '%TỔ TRƯỞNG TỔ 20%' OR e.position LIKE '%TỔ PHÓ TỔ 20%') AND e.position NOT LIKE '%20.01%'";
-      } else if (lineNumber.includes("20.01")) {
-        lineCondition = "e.position LIKE '%20.01%'";
-      } else {
-        const lineNum = parseInt(lineNumber.replace("Line ", ""));
-        const paddedNum = lineNum < 10 ? `0${lineNum}` : lineNum;
-        lineCondition = `e.position LIKE '%TỔ ${paddedNum}%'`;
-      }
-    }
+    const lineId = lineResult[0]?.id_line;
+    const lineWorkshopId = lineResult[0]?.id_workshop;
 
+    // Query riêng cho tổ trưởng, tổ phó và nhân viên kỹ thuật
     const query = `
       SELECT 
         e.id_employee,
@@ -306,28 +327,47 @@ app.get("/api/employees/:workshopId", async (req, res) => {
         eg.name_employee_group
       FROM tb_employee e
       LEFT JOIN tb_employee_group eg ON e.id_employee_group = eg.id_employee_group
-      WHERE e.id_workshop = ? 
-      AND (
-        (${lineCondition} AND (e.position LIKE '%TỔ TRƯỞNG%' OR e.position LIKE '%TỔ PHÓ%'))
-        OR 
-        (eg.name_employee_group IN ('CƠ ĐIỆN XƯỞNG', 'KỸ THUẬT XƯỞNG'))
+      WHERE (
+        /* Tổ trưởng và tổ phó của line cụ thể */
+        (e.id_line = ? AND (e.position LIKE '%TỔ TRƯỞNG%' OR e.position LIKE '%TỔ PHÓ%'))
+        OR
+        /* Nhân viên thuộc nhóm 5 và 6 của workshop */
+        (e.id_workshop = ? AND e.id_employee_group IN (5, 6))
       )
       ORDER BY 
         CASE 
-          WHEN e.position LIKE '%TỔ TRƯỞNG%' AND ${lineCondition} THEN 1
-          WHEN e.position LIKE '%TỔ PHÓ%' AND ${lineCondition} THEN 2
-          WHEN eg.name_employee_group = 'CƠ ĐIỆN XƯỞNG' THEN 3
-          WHEN eg.name_employee_group = 'KỸ THUẬT XƯỞNG' THEN 4
+          WHEN e.position LIKE '%TỔ TRƯỞNG%' THEN 1
+          WHEN e.position LIKE '%TỔ PHÓ%' THEN 2
+          WHEN eg.name_employee_group = 'CƠ ĐIỆN' THEN 3
+          WHEN eg.name_employee_group = 'KỸ THUẬT' THEN 4
           ELSE 5
         END,
         e.id_employee ASC
     `;
 
-    const [rows] = await pool.promise().query(query, [workshopId]);
+    const [rows] = await pool.promise().query(query, [lineId, lineWorkshopId]);
 
     res.json(rows);
   } catch (error) {
     console.error("Error in /api/employees:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Thêm API endpoint để lấy danh sách line
+app.get("/api/lines", async (req, res) => {
+  try {
+    const [rows] = await pool.promise().query(`
+      SELECT 
+        l.id_line,
+        l.name_line,
+        l.id_workshop
+      FROM tb_line l
+      ORDER BY l.id_line ASC
+    `);
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching lines:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });

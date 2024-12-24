@@ -32,6 +32,7 @@ import {
   fetchMachineryCategories,
   fetchMachineryByCategory,
   fetchEmployees,
+  fetchLines,
 } from "../data/api";
 import Pagination from "../components/Pagination";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
@@ -54,7 +55,7 @@ const IssueListPage = () => {
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [issueDescription, setIssueDescription] = useState("");
   const [solution, setSolution] = useState("");
-  const [responsiblePerson, setResponsiblePerson] = useState("");
+  const [responsiblePerson, setResponsiblePerson] = useState(null);
   const [endTime, setEndTime] = useState("");
   const [downtimeMinutes, setDowntimeMinutes] = useState(0);
   const [filteredPeopleList, setFilteredPeopleList] = useState([]);
@@ -70,6 +71,7 @@ const IssueListPage = () => {
   const [selectedMachineryCategory, setSelectedMachineryCategory] =
     useState("");
   const [selectedMachinery, setSelectedMachinery] = useState(null);
+  const [lineNumbers, setLineNumbers] = useState([]);
 
   const calculateDowntimeMinutes = (startTime, endTime) => {
     try {
@@ -254,55 +256,36 @@ const IssueListPage = () => {
     selectedIssue,
   ]);
 
-  const filterPeopleList = useCallback(async (selectedIssue) => {
-    if (!selectedIssue) {
-      setFilteredPeopleList([
-        { full_name: "CÔNG NHÂN TỰ XỬ LÝ", position: "" },
-      ]);
-      return;
-    }
+  const filterPeopleList = useCallback(
+    async (lineNumber) => {
+      if (!lineNumber) {
+        setFilteredPeopleList([]);
+        return;
+      }
 
-    try {
-      let workshopId;
-      const lineNumber = selectedIssue.line_number;
+      try {
+        const line = lineNumbers.find((l) => l.label === lineNumber);
 
-      // Xác định workshop ID dựa trên line number
-      if (lineNumber.includes("Line")) {
-        const lineNum = parseInt(lineNumber.replace("Line ", ""));
-        if (lineNum >= 1 && lineNum <= 10) {
-          workshopId = 1;
-        } else if (
-          (lineNum >= 11 && lineNum <= 20) ||
-          lineNumber.includes("20.01")
-        ) {
-          workshopId = 2;
-        } else if (lineNum >= 21 && lineNum <= 30) {
-          workshopId = 3;
-        } else if (lineNum >= 31 && lineNum <= 40) {
-          workshopId = 4;
+        if (line) {
+          const employees = await fetchEmployees(line.id_workshop, lineNumber);
+          setFilteredPeopleList([
+            ...employees,
+            { full_name: "CÔNG NHÂN TỰ XỬ LÝ", position: "" },
+          ]);
+        } else {
+          setFilteredPeopleList([
+            { full_name: "CÔNG NHÂN TỰ XỬ LÝ", position: "" },
+          ]);
         }
-      } else if (lineNumber.includes("xưởng 4")) {
-        workshopId = 4;
-      }
-
-      if (workshopId) {
-        const employees = await fetchEmployees(workshopId, lineNumber);
-        setFilteredPeopleList([
-          ...employees,
-          { full_name: "CÔNG NHÂN TỰ XỬ LÝ", position: "" },
-        ]);
-      } else {
+      } catch (error) {
+        console.error("Error in filterPeopleList:", error);
         setFilteredPeopleList([
           { full_name: "CÔNG NHÂN TỰ XỬ LÝ", position: "" },
         ]);
       }
-    } catch (error) {
-      console.error("Error fetching employees:", error);
-      setFilteredPeopleList([
-        { full_name: "CÔNG NHÂN TỰ XỬ LÝ", position: "" },
-      ]);
-    }
-  }, []);
+    },
+    [lineNumbers]
+  );
 
   // Modify filterIssueOptions to use id_category from selectedIssue
   const filterIssueOptions = useCallback(async () => {
@@ -327,24 +310,25 @@ const IssueListPage = () => {
 
   useEffect(() => {
     if (selectedIssue) {
-      filterPeopleList(selectedIssue);
+      filterPeopleList(selectedIssue.line_number);
       filterIssueOptions();
     }
   }, [selectedIssue, filterPeopleList, filterIssueOptions]);
 
   // Modify handleEndIssue to include id_category
-  const handleEndIssue = (issue) => {
+  const handleEndIssue = async (issue) => {
     try {
       const currentTime = format(new Date(), "HH:mm dd/MM/yyyy");
-
       setEndTime(currentTime);
       const minutes = calculateDowntimeMinutes(
         issue.submission_time,
         currentTime
       );
-
       setDowntimeMinutes(minutes);
       setSelectedIssue(issue);
+
+      await filterPeopleList(issue.line_number);
+
       setOpenEndIssueDialog(true);
     } catch (error) {
       console.error("Error in handleEndIssue:", error);
@@ -368,36 +352,35 @@ const IssueListPage = () => {
   const handleConfirmEndIssue = async () => {
     setIsLoading(true);
     try {
-      // Format endTime từ "HH:mm DD/MM/YYYY" sang "YYYY-MM-DD HH:mm:00"
+      // Convert endTime from "HH:mm dd/MM/yyyy" to "YYYY-MM-DD HH:mm:ss"
       const [time, date] = endTime.split(" ");
       const [day, month, year] = date.split("/");
       const formattedEndTime = `${year}-${month}-${day} ${time}:00`;
-
-      // Lấy giá trị machinery_type và machinery_code
-      const machineryType = selectedMachineryCategory
-        ? machineryCategories.find(
-            (cat) => cat.id_machinery_category === selectedMachineryCategory
-          )?.name_machinery_category
-        : null;
-
-      const machineryCode = selectedMachinery
-        ? `${selectedMachinery.code_machinery} - ${selectedMachinery.name_machinery}`
-        : null;
 
       const result = await endIssue(
         selectedIssue.id_logged_issue,
         formattedEndTime,
         {
           downtimeMinutes,
-          machineryType, // Gửi tên loại thiết bị
-          machineryCode, // Gửi mã và tên thiết bị
+          machineryType: selectedMachineryCategory
+            ? machineryCategories.find(
+                (cat) => cat.id_machinery_category === selectedMachineryCategory
+              )?.name_machinery_category
+            : null,
+          machineryCode: selectedMachinery
+            ? `${selectedMachinery.code_machinery} - ${selectedMachinery.name_machinery}`
+            : null,
           issueDescription:
             issueDescription === "KHÁC"
               ? `KHÁC - ${otherIssue}`
               : issueDescription,
           solutionDescription:
             solution === "KHÁC" ? `KHÁC - ${otherSolution}` : solution,
-          problemSolver: responsiblePerson,
+          problemSolver: responsiblePerson
+            ? responsiblePerson.position
+              ? `${responsiblePerson.position} - ${responsiblePerson.full_name}`
+              : responsiblePerson.full_name
+            : null,
         }
       );
 
@@ -434,7 +417,7 @@ const IssueListPage = () => {
 
   useEffect(() => {
     if (selectedIssue) {
-      filterPeopleList(selectedIssue);
+      filterPeopleList(selectedIssue.line_number);
     }
   }, [selectedIssue, filterPeopleList]);
 
@@ -467,6 +450,23 @@ const IssueListPage = () => {
     };
     loadMachinery();
   }, [selectedMachineryCategory]);
+
+  useEffect(() => {
+    const loadLines = async () => {
+      try {
+        const lines = await fetchLines();
+        const formattedLines = lines.map((line) => ({
+          value: line.id_line,
+          label: line.name_line,
+          id_workshop: line.id_workshop,
+        }));
+        setLineNumbers(formattedLines);
+      } catch (error) {
+        console.error("Error loading lines:", error);
+      }
+    };
+    loadLines();
+  }, []);
 
   return (
     <>
@@ -683,10 +683,12 @@ const IssueListPage = () => {
           <Autocomplete
             options={filteredPeopleList}
             getOptionLabel={(option) => {
-              if (!option || typeof option === "string") return "";
-              return option.position
-                ? `${option.position} - ${option.full_name}`
-                : option.full_name;
+              if (typeof option === "object" && option !== null) {
+                return option.position
+                  ? `${option.position} - ${option.full_name}`
+                  : option.full_name;
+              }
+              return option || "";
             }}
             renderInput={(params) => (
               <TextField
@@ -697,29 +699,12 @@ const IssueListPage = () => {
                 variant="outlined"
               />
             )}
-            value={
-              responsiblePerson
-                ? {
-                    full_name: responsiblePerson.includes(" - ")
-                      ? responsiblePerson.split(" - ")[1]
-                      : responsiblePerson,
-                    position: responsiblePerson.includes(" - ")
-                      ? responsiblePerson.split(" - ")[0]
-                      : "",
-                  }
-                : null
-            }
+            value={responsiblePerson}
             onChange={(event, newValue) => {
-              setResponsiblePerson(
-                newValue
-                  ? newValue.position
-                    ? `${newValue.position} - ${newValue.full_name}`
-                    : newValue.full_name
-                  : ""
-              );
+              setResponsiblePerson(newValue);
             }}
             renderOption={(props, option) => (
-              <li {...props}>
+              <li {...props} style={{ whiteSpace: "normal" }}>
                 {option.position
                   ? `${option.position} - ${option.full_name}`
                   : option.full_name}
@@ -727,10 +712,7 @@ const IssueListPage = () => {
             )}
             isOptionEqualToValue={(option, value) => {
               if (!option || !value) return false;
-              const optionFullName = option.position
-                ? `${option.position} - ${option.full_name}`
-                : option.full_name;
-              return optionFullName === responsiblePerson;
+              return option.full_name === value.full_name;
             }}
           />
         </DialogContent>

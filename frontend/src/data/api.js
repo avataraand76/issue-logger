@@ -52,8 +52,6 @@ export const addIssue = async (issueData) => {
         responsiblePerson: issueData.responsiblePerson,
         oldProductCode: issueData.oldProductCode || null,
         newProductCode: issueData.newProductCode || null,
-        workshop: issueData.workshop,
-        factory: issueData.factory,
         status_logged_issue: "pending",
       }),
     });
@@ -166,6 +164,19 @@ export const fetchEmployees = async (workshopId, lineNumber) => {
     return await response.json();
   } catch (error) {
     console.error("Error fetching employees:", error);
+    throw error;
+  }
+};
+
+export const fetchLines = async () => {
+  try {
+    const response = await fetch(`${API_URL}/lines`);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching lines:", error);
     throw error;
   }
 };
